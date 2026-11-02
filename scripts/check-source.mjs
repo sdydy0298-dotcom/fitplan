@@ -15,6 +15,7 @@ const checks={
  'Inline signup OTP':read('src/app/login/page.tsx').includes('db.auth.signUp(')&&read('src/app/login/page.tsx').includes("auth.verifyOtp({email:sentTo,token:code,type:'email'})")&&!read('src/app/login/page.tsx').includes('signInWithOtp'),
  'Signup code template':read('supabase/fitplan-signup-confirmation-template.html').includes('{{ .Token }}')&&read('supabase/fitplan-signup-confirmation-template.html').includes('{{ .ConfirmationURL }}'),
  'Signup stays on login page':read('src/app/login/page.tsx').includes('인증번호 보내기')&&read('src/app/login/page.tsx').includes('인증 확인')&&read('src/app/login/page.tsx').includes('회원가입 완료'),
+ 'Pending signup recovery':read('src/app/login/page.tsx').includes('resendExistingSignup')&&read('src/app/login/page.tsx').includes('db.auth.updateUser({password})'),
  'Email confirmation result route':fs.existsSync(new URL('src/app/auth/confirmed/page.tsx',base))&&read('src/app/auth/confirmed/page.tsx').includes('db.auth.signOut()'),
  'Password recovery email':read('src/app/login/page.tsx').includes('resetPasswordForEmail')&&fs.existsSync(new URL('src/app/reset-password/page.tsx',base)),
  '30 exercise guides':(read('src/lib/exercises.ts').match(/^  \{id:'/gm)||[]).length===30,

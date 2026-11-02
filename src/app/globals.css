@@ -126,3 +126,8 @@
 .signup-verified{display:flex;align-items:center;gap:8px;overflow-wrap:anywhere;font-weight:800;color:#326c4b;font-size:12px;background:#eaf6e7;border:1px solid #d2e8ca;padding:11px 13px;border-radius:11px}
 .signup-code-panel button:disabled,.signup-send-row button:disabled{cursor:not-allowed;opacity:.55}
 @media(max-width:480px){.signup-send-row{align-items:stretch;flex-direction:column}.signup-send-row>.field-hint{flex:auto;min-width:0}.signup-code-panel>.btn{padding:0 12px;font-size:12px}}
+
+.signup-existing-help{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.signup-existing-help p{margin:0}
+.signup-existing-help button{padding:4px 0;border:0;background:none;color:#4d7d6a;font-size:12px;font-weight:700;text-align:left;cursor:pointer}
+.signup-existing-help button:disabled{opacity:.5;cursor:not-allowed}

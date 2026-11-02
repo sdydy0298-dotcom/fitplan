@@ -94,6 +94,23 @@ export default function Login(){
   finally{setBusy(false);}
  };
 
+ const resendExistingSignup=async()=>{
+  if(busy||!configured||sentTo||verified)return;
+  setError('');setNotice('');
+  const address=email.trim().toLowerCase();
+  if(!validEmail(address))return setError('가입을 요청한 이메일을 입력해 주세요.');
+  if(password.length<8||password!==passwordAgain)return setError('인증 후 사용할 비밀번호와 비밀번호 확인도 입력해 주세요.');
+  setBusy(true);
+  try{
+   const {error}=await browserDb().auth.resend({type:'signup',email:address,options:{emailRedirectTo:redirectAfterConfirmation()}});
+   if(error)throw error;
+   setSentTo(address);setEmail(address);setCode('');
+   setResendAt(Date.now()+RESEND_WAIT_MS);setSeconds(Math.ceil(RESEND_WAIT_MS/1000));
+   setNotice('기존 가입 요청에 대한 인증번호 재발송을 요청했습니다. 이미 가입이 완료된 이메일이라면 로그인하거나 비밀번호 찾기를 이용해 주세요.');
+  }catch(e){setError(authErrorText(e));}
+  finally{setBusy(false);}
+ };
+
  const verifySignupCode=async()=>{
   if(busy||!sentTo||verified)return;
   setError('');setNotice('');
@@ -104,6 +121,10 @@ export default function Login(){
    const {data,error}=await db.auth.verifyOtp({email:sentTo,token:code,type:'email'});
    if(error)throw error;
    if(!data.user||!data.user.email_confirmed_at)throw new Error('인증 결과를 확인하지 못했습니다. 인증번호를 다시 확인해 주세요.');
+   // Also save the password from the current form. This makes an older, still-pending
+   // signup usable after its confirmation email has been resent.
+   const {error:passwordError}=await db.auth.updateUser({password});
+   if(passwordError)throw passwordError;
    // Supabase creates a session on verification; this app requires manual login.
    const {error:signOutError}=await db.auth.signOut();
    if(signOutError)throw signOutError;
@@ -211,7 +232,7 @@ export default function Login(){
    {notice&&<div className="success-message" role="status">{notice}</div>}
    <button type="button" className="btn btn-primary btn-lg" disabled={!verified||busy}
      onClick={finishSignup}>회원가입 완료 <ArrowRight size={17}/></button>
-   {!sentTo&&<p className="field-hint">기존 ALEPH 공용 계정에 등록한 이메일은 중복 가입할 수 없습니다.</p>}
+   {!sentTo&&<div className="signup-existing-help"><p className="field-hint">기존 ALEPH 공용 계정에 등록한 이메일은 중복 가입할 수 없습니다.</p><button type="button" className="text-link" disabled={busy||!configured} onClick={()=>void resendExistingSignup()}>이미 가입 요청했나요? 인증번호 다시 받기</button></div>}
   </div>}
 
   {recovery&&<form className="form-stack auth-form" onSubmit={submitRecovery}>
