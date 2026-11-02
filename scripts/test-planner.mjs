@@ -52,6 +52,11 @@ assert.equal(withTwo.completed,2);
 assert.equal(withTwo.missed,0);
 assert.equal(withTwo.percentage,67);
 
+const futureEntry=calculatePlannerWeek([baseRoutine],
+ [workout('2026-11-06')],'2026-11-05');
+assert.equal(futureEntry.completed,0);
+assert.equal(byDate(futureEntry,'2026-11-06').status,'upcoming');
+
 const removed=calculatePlannerWeek([baseRoutine],[],'2026-11-05');
 assert.equal(removed.completed,0);
 assert.equal(removed.missed,2);
