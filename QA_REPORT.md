@@ -34,3 +34,10 @@
 - Supabase 설정의 **Data API / Exposed schemas**에 기존 항목을 유지하면서 fitplan 추가가 필요하다.
 - 기존 aleph_common의 **Auth / Redirect URLs**에 운영 배포 주소를 추가해야 이메일 인증 복귀에 문제가 없다.
 - 로그인 및 데이터 검증 결과를 통과했다고 표시하지 않는다.
+
+## 사용자별 직접 운동 등록 확장 (2026-11-02)
+
+- [x] 기존 FITPLAN 30개 가이드 유지, exercise_catalog에 owner_id 컬럼 및 RLS 추가
+- [x] authenticated 사용자에게 필요한 컬럼의 INSERT 권한만 부여
+- [x] 공유 응답과 다른 계정 복사 RPC에 사용자 직접 등록 운동 지원
+- [ ] 실제 계정 2개로 등록/루틴 저장/운동 기록/RLS/복사 브라우저 기능 시험

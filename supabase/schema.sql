@@ -1,4 +1,5 @@
 -- FITPLAN isolated schema in existing aleph_common Supabase project.
+-- To support custom user exercises, apply supabase/custom_exercises.sql AFTER this file in a fresh DB.
 create schema if not exists fitplan;
 revoke all on schema fitplan from public;
 grant usage on schema fitplan to anon, authenticated, service_role;

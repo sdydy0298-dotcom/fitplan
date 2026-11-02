@@ -79,3 +79,13 @@
 @media(max-width:720px) {
   .guide-hero{height:clamp(270px, 74vw, 360px);}
 }
+
+/* Personal exercise form shared by routine and workout editors. */
+.custom-exercise-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 14px}
+.custom-exercise-form{margin:12px 0 18px;padding:20px;background:#f7faf5;border:1px solid #c9dabc;border-radius:15px;display:flex;flex-direction:column;gap:14px}
+.custom-exercise-form .panel-header{margin-bottom:0}
+.custom-exercise-form .panel-header h3{margin:0 0 5px;color:var(--ink)}
+.custom-exercise-form .panel-header p{max-width:430px}
+.custom-exercise-form .field-grid{gap:12px}
+.custom-exercise-form>button[type=submit]{align-self:flex-start}
+@media(max-width:720px){.custom-exercise-form{padding:15px}.custom-exercise-tools .btn{white-space:normal;text-align:left}.custom-exercise-form>button[type=submit]{width:100%}}
