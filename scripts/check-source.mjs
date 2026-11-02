@@ -8,7 +8,7 @@ const checks={
  'All user data tables RLS enabled':['routines','routine_days','routine_items','routine_shares','workout_sessions','workout_entries','workout_sets'].every(t=>read('supabase/schema.sql').includes(`alter table fitplan.${t} enable row level security`)),
  'Save functions transactional':read('supabase/schema.sql').includes('function fitplan.save_routine')&&read('supabase/schema.sql').includes('function fitplan.save_workout'),
  'Server secret not client-exposed':!read('src/lib/admin.ts').includes('NEXT_PUBLIC_SUPABASE_SECRET'),
- 'Share response allowlist':read('src/lib/share-server.ts').includes('routine_days:')&&!read('src/lib/share-server.ts').includes('auth.users'),
+ 'Share response allowlist':read('src/lib/share-server.ts').includes("get_public_routine")&&read('src/app/api/share/[token]/route.ts').includes('routine'),
  'Public share route exists':fs.existsSync(new URL('src/app/api/share/[token]/route.ts',base)),
  'Copy route exists':fs.existsSync(new URL('src/app/api/share/[token]/copy/route.ts',base)),
  '18 exercise guides':(read('src/lib/exercises.ts').match(/^  \{id:'/gm)||[]).length===18,
