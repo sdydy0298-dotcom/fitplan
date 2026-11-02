@@ -1,11 +1,11 @@
 'use client';
 import Link from 'next/link';
 import {usePathname,useRouter} from 'next/navigation';
-import {Activity,ArrowUpRight,BookOpen,CalendarDays,ChartNoAxesCombined,ClipboardList,Dumbbell,LogIn,LogOut,Menu,X} from 'lucide-react';
+import {Activity,ArrowUpRight,BookOpen,CalendarClock,CalendarDays,ChartNoAxesCombined,ClipboardList,Dumbbell,LogIn,LogOut,Menu,X} from 'lucide-react';
 import {useEffect,useState} from 'react';
 import {browserDb} from '@/lib/supabase';
 import {useAuth} from './AuthProvider';
-const nav=[{href:'/dashboard',label:'대시보드',icon:Activity},{href:'/routines',label:'내 루틴',icon:ClipboardList},{href:'/exercises',label:'운동 가이드',icon:BookOpen},{href:'/workouts',label:'운동 기록',icon:CalendarDays},{href:'/progress',label:'진행 현황',icon:ChartNoAxesCombined}];
+const nav=[{href:'/dashboard',label:'대시보드',icon:Activity},{href:'/planner',label:'운동 플래너',icon:CalendarClock},{href:'/routines',label:'내 루틴',icon:ClipboardList},{href:'/exercises',label:'운동 가이드',icon:BookOpen},{href:'/workouts',label:'운동 기록',icon:CalendarDays},{href:'/progress',label:'진행 현황',icon:ChartNoAxesCombined}];
 export default function SiteHeader(){
  const {user,configured}=useAuth();const pathname=usePathname();const router=useRouter();const [open,setOpen]=useState(false);
  const [memberName,setMemberName]=useState('');
