@@ -71,7 +71,7 @@ export function calculatePlannerWeek(
    return (routine.routine_days||[])
     .filter(day=>day.weekday===weekday && (day.routine_items||[]).length>0)
     .map(day=>{
-     const done=records.some(w=>w.routine_id===routine.id);
+     const done=date<=today && records.some(w=>w.routine_id===routine.id);
      const status:PlanSlotStatus=done?'done':date<today?'missed':date===today?'today':'upcoming';
      return {
       routineId:routine.id,
