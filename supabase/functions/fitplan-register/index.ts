@@ -93,7 +93,11 @@ Deno.serve(async (request: Request) => {
     "unknown"
   ).trim().slice(0, 96);
   const salt = serverKey.slice(-32);
-  const rules: Array<[string, number, number]> = [
+  const mode = values.action === "login-v2" ? "login" : "register";
+  const rules: Array<[string, number, number]> = mode === "login" ? [
+    ["login:ip:" + gatewayIp, 20, 900],
+    ["login:email:" + email, 8, 900],
+  ] : [
     ["ip:" + gatewayIp, 4, 3600],
     ["email:" + email, 3, 86400],
     ["total:fitplan", 30, 3600],
@@ -112,20 +116,64 @@ Deno.serve(async (request: Request) => {
     if (data !== true) return response(origin, 429, { error: "회원가입 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요." });
   }
 
+  const action = values.action === "register-v2" || values.action === "login-v2" ? values.action : "legacy";
+  if (action === "register-v2") {
+    const { data: found, error: lookupError } = await client.schema("fitplan").from("users")
+      .select("user_id").eq("email", email).maybeSingle();
+    if (lookupError) return response(origin, 503, {error:"회원 정보를 확인할 수 없습니다."});
+    if (found) return response(origin, 409, {error:"FITPLAN에 이미 가입된 이메일입니다."});
+
+    const alias = "fp-" + crypto.randomUUID() + "@fitplan.invalid";
+    const { data: created, error: authError } = await client.auth.admin.createUser({
+      email:alias, password, email_confirm:true, app_metadata:{application:"fitplan"}
+    });
+    if (authError || !created.user) {
+      console.error("fitplan_create_account_failed",authError?.code,authError?.status);
+      return response(origin, 503, {error:"회원가입을 처리할 수 없습니다."});
+    }
+    const userId = created.user.id;
+    const { error: insertError } = await client.schema("fitplan").from("users")
+      .insert({user_id:userId,email,login_email:alias});
+    const { error: profileError } = insertError ? {error:null} :
+      await client.schema("fitplan").from("profiles").insert({user_id:userId});
+    if (insertError || profileError) {
+      const { error: deleteError } = await client.auth.admin.deleteUser(userId);
+      if (deleteError) console.error("fitplan_registration_cleanup_failed", deleteError.code);
+      console.error("fitplan_registration_data_failed", (insertError||profileError)?.code);
+      return response(origin, insertError?.code === "23505" ? 409 : 503,
+        {error:insertError?.code === "23505" ? "FITPLAN에 이미 가입된 이메일입니다." : "회원가입을 완료하지 못했습니다."});
+    }
+    return response(origin, 200, {ok:true});
+  }
+  if (action === "login-v2") {
+    const {data:member,error:lookupError}=await client.schema("fitplan").from("users")
+      .select("user_id,login_email").eq("email",email).maybeSingle();
+    if (lookupError) return response(origin,503,{error:"회원 정보를 불러올 수 없습니다."});
+    if (!member) return response(origin,401,{error:"이메일 또는 비밀번호가 올바르지 않습니다."});
+    const publicClient=createClient(projectUrl,request.headers.get("apikey") ?? "",{
+      auth:{persistSession:false,autoRefreshToken:false}
+    });
+    const {data:signedIn,error:loginError}=await publicClient.auth.signInWithPassword({
+      email:member.login_email,password
+    });
+    if(loginError || signedIn.user?.id!==member.user_id || !signedIn.session){
+      return response(origin,401,{error:"이메일 또는 비밀번호가 올바르지 않습니다."});
+    }
+    await client.schema("fitplan").from("users").update({last_login_at:new Date().toISOString()})
+      .eq("user_id",member.user_id);
+    return response(origin,200,{ok:true,access_token:signedIn.session.access_token,
+      refresh_token:signedIn.session.refresh_token});
+  }
+
   try {
-    // Explicitly confirm only new FITPLAN signups, preserving the shared
-    // Supabase project's global Confirm email setting for other ALEPH apps.
+    // Legacy path, kept until frontend rollout.
     const { error } = await client.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
+      email, password, email_confirm: true
     });
     if (error) {
-      if (error.status === 422 || /already|exist|duplicate/i.test(error.message)) {
-        return response(origin, 409, { error: "이미 가입된 이메일입니다. 기존 계정으로 로그인해 주세요." });
-      }
-      console.error("fitplan_signup_auth_error", error.code, error.status);
-      return response(origin, 503, { error: "회원가입을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요." });
+      if (error.status === 422 || /already|exist|duplicate/i.test(error.message))
+        return response(origin, 409, { error: "이미 가입된 이메일입니다." });
+      return response(origin, 503, { error: "회원가입을 처리하지 못했습니다." });
     }
     return response(origin, 200, { ok: true });
   } catch {
