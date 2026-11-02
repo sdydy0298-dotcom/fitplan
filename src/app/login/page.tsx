@@ -45,11 +45,16 @@ export default function Login(){
    const db=browserDb();
    const address=email.trim().toLowerCase();
    if(mode==='recovery'){
+    // Always return to the published FITPLAN app, even when the request is
+    // initiated from a local development session.
+    // Supabase Auth must also allowlist this exact URL in Redirect URLs.
+    const appOrigin=(process.env.NEXT_PUBLIC_APP_URL||'https://fitplan-sdydy0298-dotcom.vercel.app').replace(/\/$/,'');
+    const recoveryReturnUrl=appOrigin+'/reset-password';
     const {error}=await db.auth.resetPasswordForEmail(address,{
-     redirectTo:window.location.origin+'/reset-password'
+     redirectTo:recoveryReturnUrl
     });
     if(error)throw error;
-    setNotice('비밀번호 재설정 메일을 요청했습니다. 이메일을 확인해 주세요.');
+    setNotice('비밀번호 재설정 메일을 요청했습니다. 메일의 링크는 FITPLAN 비밀번호 변경 페이지로 열려야 합니다. 만약 localhost로 이동한다면 Supabase의 Redirect URLs에 운영 주소가 등록됐는지 확인해 주세요.');
     return;
    }
 

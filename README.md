@@ -132,3 +132,19 @@ FITPLAN 필수 요구사항은 계정 생성·로그인·로그아웃 및 계정
 - [ ] 신규 비밀번호로 로그인 → 루틴 저장 및 기록 확인
 - [ ] 이미 가입된 이메일 중복 가입 거절 및 비밀번호 오류 확인
 - [ ] 계정 A/B가 서로의 루틴과 기록에 접근하지 못하는지 확인
+
+## 비밀번호 재설정 링크가 localhost로 가는 문제 (2026-11-02)
+
+FITPLAN 비밀번호 재설정 메일의 복귀 주소는 `https://fitplan-sdydy0298-dotcom.vercel.app/reset-password`입니다.
+코드에서는 로컬 개발 서버에서 요청하더라도 기본적으로 운영 주소를 사용하며, 필요한 경우 `NEXT_PUBLIC_APP_URL`로 변경할 수 있습니다.
+
+**필수 설정 — Supabase 관리자에서 한 번만 처리**
+
+1. [aleph_common → Authentication → URL Configuration](https://supabase.com/dashboard/project/gbhmupoxedmyphjnudhb/auth/url-configuration)으로 이동합니다.
+2. **Redirect URLs** 목록에 `https://fitplan-sdydy0298-dotcom.vercel.app/reset-password`를 정확히 추가하고 저장합니다.
+3. 기존 ALEPH 다른 과제의 Redirect URLs는 그대로 유지합니다. **Site URL을 FITPLAN으로 무작정 바꾸지 마세요.** Site URL은 공용 Auth의 기본 복귀 주소로, 다른 과제에 영향을 줄 수 있습니다.
+4. 변경 전에 받은 `localhost:3000` 메일 링크는 이미 잘못 만들어졌으므로 폐기하고 FITPLAN 배포 사이트에서 **새 비밀번호 재설정 메일을 다시 요청**합니다.
+5. 새 메일 링크를 클릭하면 FITPLAN의 `/reset-password` 페이지에서 새 비밀번호를 설정하고, 자동 로그아웃 후 수동 로그인합니다.
+6. 액세스 토큰과 갱신 토큰이 포함된 `#access_token=...` 링크는 누구에게도 전달하지 마세요. 세션 URL이 노출됐다면 안전을 위해 해당 계정의 세션을 종료하고 새 비밀번호를 설정합니다.
+
+검증 시나리오: **새 메일의 링크가 운영 FITPLAN /reset-password로 연결되는지 → 비밀번호 업데이트 → 새 비밀번호 로그인**. 위 Auth URL 설정은 연결된 Supabase 도구에서 직접 변경할 수 없으며, 실제 재설정 링크의 동작은 사용자 브라우저 테스트가 필요합니다.

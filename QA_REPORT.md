@@ -51,3 +51,10 @@
 - [ ] 공용 Supabase Auth의 Confirm email OFF 설정 확인 (다른 ALEPH 앱에 영향)
 - [ ] 신규 이메일로 회원가입 → 로그인 브라우저 통합 검증
 - [ ] 계정 A/B의 개인 루틴·기록 RLS 재검증
+
+## 2026-11-02 비밀번호 재설정 링크 문제
+
+- [x] 새 재설정 메일 요청 시 localhost 대신 운영 FITPLAN /reset-password를 전달하도록 코드 수정
+- [x] 공유 Supabase의 Redirect URLs 허용 목록과 Site URL의 차이를 안내
+- [ ] Supabase Dashboard Redirect URLs에 FITPLAN 운영 주소 등록
+- [ ] 신규 재설정 메일 열람 후 실제 FITPLAN 비밀번호 변경 화면 및 로그인 확인

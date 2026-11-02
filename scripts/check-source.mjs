@@ -15,6 +15,7 @@ const checks={
  'Simple signup without OTP':read('src/app/login/page.tsx').includes('db.auth.signUp({email:address,password})')&&!read('src/app/login/page.tsx').includes('verifyOtp')&&!read('src/app/login/page.tsx').includes('인증번호 보내기'),
  'Signup does not auto login':read('src/app/login/page.tsx').includes("db.auth.signOut({scope:'local'})")&&read('src/app/login/page.tsx').includes('setMode(\'login\')'),
  'Signup checks missing session':read('src/app/login/page.tsx').includes('if(!data.session)')&&read('src/app/login/page.tsx').includes('Confirm email'),
+ 'Recovery points to production FITPLAN':read('src/app/login/page.tsx').includes("NEXT_PUBLIC_APP_URL||'https://fitplan-sdydy0298-dotcom.vercel.app'")&&read('src/app/login/page.tsx').includes("redirectTo:recoveryReturnUrl"),
  'Password recovery email':read('src/app/login/page.tsx').includes('resetPasswordForEmail')&&fs.existsSync(new URL('src/app/reset-password/page.tsx',base)),
  '30 exercise guides':(read('src/lib/exercises.ts').match(/^  \{id:'/gm)||[]).length===30,
  '30 seeded catalog rows':(read('supabase/schema.sql').match(/https:\/\/www\.muscleandstrength\.com\/exercises\//g)||[]).length===30,
