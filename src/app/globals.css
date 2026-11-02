@@ -8,3 +8,19 @@
 
 .editor-grid{grid-template-columns:minmax(0,1.7fr) minmax(260px,.8fr)}
 @media(max-width:720px){.editor-grid{grid-template-columns:1fr}}
+
+/* FITPLAN exercise-specific original vector illustrations */
+.exercise-library-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+.exercise-art{height:158px;overflow:hidden;background:#edf4e9}
+.exercise-art>span{z-index:1;color:#355f4a;background:rgba(255,255,255,.77);border:1px solid rgba(255,255,255,.45);padding:3px 8px;border-radius:7px;top:10px;left:10px;font-size:9px}
+.exercise-art .exercise-illustration{width:100%;height:100%;display:block;transition:transform .25s ease;object-fit:cover}
+.exercise-card:hover .exercise-art .exercise-illustration{transform:scale(1.045)}
+.exercise-card-body{padding:16px}
+.exercise-card-body h3{font-size:15px;min-height:21px}
+.exercise-card-body p{margin-bottom:10px}
+.guide-hero{height:300px;overflow:hidden;background:#e7f0e0}
+.guide-hero .exercise-illustration{display:block;width:100%;height:100%}
+.illustration-note{font-size:11px;color:#728b80;margin:-10px 0 0;line-height:1.6}
+@media (max-width:1100px){.exercise-library-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:720px){.exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.exercise-art{height:137px}.exercise-card-body{padding:12px}.exercise-card-body h3{font-size:13px}.exercise-card-bottom span{font-size:10px}.guide-hero{height:225px}}
+@media (max-width:420px){.exercise-art{height:115px}.exercise-art>span{font-size:8px;padding:2px 5px}.guide-hero{height:200px}}
