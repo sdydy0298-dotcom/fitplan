@@ -63,7 +63,7 @@ export default function Login(){
     if(error)throw error;
     if(!data.user)throw new Error('회원가입 결과를 확인하지 못했습니다. 다시 시도해 주세요.');
     if(!data.session){
-     setError('Supabase 공용 인증 설정에 이메일 확인이 켜져 있어 아직 가입을 완료할 수 없습니다. 관리자 화면에서 Email → Confirm email을 끈 후 새 이메일로 다시 시도해 주세요. 이전 가입 시도가 인증 대기 계정으로 남아 있을 수 있습니다.');
+     setError('지금 이메일로 새 계정을 바로 만들 수 없습니다. 이미 가입된 이메일이라면 로그인해 주세요. 처음 사용하는 이메일인데도 이 안내가 나오면 Supabase의 이메일 확인 설정을 점검해야 합니다.');
      return;
     }
     const {error:signOutError}=await db.auth.signOut({scope:'local'});
@@ -114,6 +114,7 @@ export default function Login(){
      placeholder="비밀번호를 다시 입력"/>
    </label>}
    {error&&<div className="error-message" role="alert">{error}</div>}
+   {signup&&error&&<button type="button" className="btn btn-outline" onClick={()=>switchMode('login')}>이미 가입했나요? 로그인하기 <ArrowRight size={15}/></button>}
    {notice&&<div className="success-message" role="status">{notice}</div>}
    <button type="submit" disabled={busy||!configured} className="btn btn-primary btn-lg">
     {busy?'처리 중…':signup?'회원가입하기':recovery?'재설정 메일 보내기':'로그인하기'}
