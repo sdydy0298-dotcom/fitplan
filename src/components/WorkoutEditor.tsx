@@ -26,7 +26,7 @@ function Content({editId}:{editId?:string}){
   else{
    const params=new URLSearchParams(window.location.search);
    const requestedDate=params.get('date')||'';
-   const chosenDate=/^\\d{4}-\\d{2}-\\d{2}$/.test(requestedDate)&&
+   const chosenDate=/^\d{4}-\d{2}-\d{2}$/.test(requestedDate)&&
     dateISO(new Date(requestedDate+'T12:00:00'))===requestedDate?requestedDate:dateISO();
    setDate(chosenDate);
    const dayIndex=new Date(chosenDate+'T12:00:00').getDay();
@@ -35,7 +35,7 @@ function Content({editId}:{editId?:string}){
    const selectedRoutine=rs.find(r=>r.id===id);
    if(selectedRoutine){
     setRoutineId(selectedRoutine.id);
-    if(requestedDate){
+    if(requestedDate===chosenDate){
      const day=orderedDays(selectedRoutine).find(d=>d.weekday===dayIndex&&(d.routine_items||[]).length>0);
      if(day)setEntries(orderedItems(day.routine_items).map(it=>
       entry(it.exercise_id,it.target_sets,it.target_reps,Number(it.target_weight))));
