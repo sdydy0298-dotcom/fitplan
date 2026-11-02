@@ -7,13 +7,13 @@ import {browserDb} from '@/lib/supabase';
 import {useAuth} from '@/components/AuthProvider';
 import {friendlyError} from '@/lib/format';
 
-type Mode='login'|'signup'|'recovery';
+type Mode='login'|'signup';
 
 function authErrorText(err:unknown):string{
  const code=typeof err==='object'&&err!==null&&'code' in err?String(err.code):'';
  const detail=friendlyError(err);
  if(code==='user_already_exists'||/user already registered|already exists/i.test(detail)){
-  return '이미 가입된 이메일이에요. 로그인하거나 비밀번호 찾기를 이용해 주세요.';
+  return '이미 가입된 이메일이에요. 회원가입 대신 로그인해 주세요.';
  }
  if(code==='email_not_confirmed')return '이 계정은 이전에 이메일 인증 대기 상태로 생성됐습니다. 기존 계정의 상태를 먼저 확인해 주세요.';
  if(code==='invalid_credentials')return '이메일 또는 비밀번호가 올바르지 않습니다.';
@@ -44,20 +44,6 @@ export default function Login(){
    if(!configured)throw new Error('Supabase 연결 정보를 확인해 주세요.');
    const db=browserDb();
    const address=email.trim().toLowerCase();
-   if(mode==='recovery'){
-    // Always return to the published FITPLAN app, even when the request is
-    // initiated from a local development session.
-    // Supabase Auth must also allowlist this exact URL in Redirect URLs.
-    const appOrigin=(process.env.NEXT_PUBLIC_APP_URL||'https://fitplan-sdydy0298-dotcom.vercel.app').replace(/\/$/,'');
-    const recoveryReturnUrl=appOrigin+'/reset-password';
-    const {error}=await db.auth.resetPasswordForEmail(address,{
-     redirectTo:recoveryReturnUrl
-    });
-    if(error)throw error;
-    setNotice('비밀번호 재설정 메일을 요청했습니다. 메일의 링크는 FITPLAN 비밀번호 변경 페이지로 열려야 합니다. 만약 localhost로 이동한다면 Supabase의 Redirect URLs에 운영 주소가 등록됐는지 확인해 주세요.');
-    return;
-   }
-
    if(mode==='signup'){
     if(password.length<8)throw new Error('비밀번호는 8자 이상 입력해 주세요.');
     if(password!==passwordAgain)throw new Error('비밀번호 확인이 일치하지 않습니다.');
@@ -89,30 +75,28 @@ export default function Login(){
  };
 
  const signup=mode==='signup';
- const recovery=mode==='recovery';
- const title=signup?'나만의 운동을 시작해요.':recovery?'비밀번호를 재설정해요.':'다시 만나서 반가워요.';
- const description=signup?'계정만 만들면 바로 운동 루틴을 저장할 수 있어요.':
-  recovery?'가입한 이메일로 비밀번호 변경 안내를 보내드려요.':
-  '내 루틴과 운동 기록을 이어서 확인해 보세요.';
+
+ const title=signup?'나만의 운동을 시작해요.':'다시 만나서 반가워요.';
+ const description=signup?'이메일과 비밀번호로 간편하게 운동 루틴을 시작해 보세요.':'내 루틴과 운동 기록을 이어서 확인해 보세요.';
 
  return <div className="auth-wrap"><div className="auth-panel">
   <span className="eyebrow"><LockKeyhole size={14}/> FITPLAN ACCOUNT</span>
   <h1>{title}</h1>
   <p>{description}</p>
-  {!recovery&&<div className="auth-tab">
+  <div className="auth-tab">
    <button type="button" className={mode==='login'?'active':''} onClick={()=>switchMode('login')}>로그인</button>
    <button type="button" className={signup?'active':''} onClick={()=>switchMode('signup')}>회원가입</button>
-  </div>}
+  </div>
   <form onSubmit={submit} className="form-stack auth-form">
    <label className="input-field">이메일
     <input type="email" autoComplete="email" required value={email}
      onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/>
    </label>
-   {!recovery&&<label className="input-field">비밀번호
+   <label className="input-field">비밀번호
     <input type="password" autoComplete={signup?'new-password':'current-password'} minLength={signup?8:undefined}
      required value={password} onChange={e=>setPassword(e.target.value)}
      placeholder={signup?'8자 이상 입력':'비밀번호 입력'}/>
-   </label>}
+   </label>
    {signup&&<label className="input-field">비밀번호 확인
     <input type="password" autoComplete="new-password" minLength={8}
      required value={passwordAgain} onChange={e=>setPasswordAgain(e.target.value)}
@@ -122,15 +106,10 @@ export default function Login(){
    {signup&&error&&<button type="button" className="btn btn-outline" onClick={()=>switchMode('login')}>이미 가입했나요? 로그인하기 <ArrowRight size={15}/></button>}
    {notice&&<div className="success-message" role="status">{notice}</div>}
    <button type="submit" disabled={busy||!configured} className="btn btn-primary btn-lg">
-    {busy?'처리 중…':signup?'회원가입하기':recovery?'재설정 메일 보내기':'로그인하기'}
+    {busy?'처리 중…':signup?'회원가입하기':'로그인하기'}
     <ArrowRight size={17}/>
    </button>
   </form>
-  <div className="auth-bottom-link">
-   {recovery?
-    <button type="button" className="text-link" onClick={()=>switchMode('login')}>로그인으로 돌아가기</button>:
-    <button type="button" className="text-link" onClick={()=>switchMode('recovery')}>비밀번호를 잊으셨나요?</button>}
-  </div>
   <div className="notice" style={{marginTop:25}}>
    <ShieldCheck size={17}/><span>내 운동 기록은 기본 비공개예요. 공유를 선택한 루틴만 다른 사람이 볼 수 있어요.</span>
   </div>

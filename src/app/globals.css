@@ -92,6 +92,5 @@
 
 /* FITPLAN account form */
 .auth-wrap{max-width:480px}
-.auth-bottom-link{text-align:center;margin-top:17px}
-.auth-bottom-link .text-link{border:0;background:transparent;color:#4d7d6a;font-size:12px;font-weight:700;cursor:pointer}
+
 @media(max-width:480px){.auth-panel{padding:26px 22px}}

@@ -35,9 +35,9 @@ npm install
 1. Supabase 기존 aleph_common 프로젝트 선택 (기존 과제 테이블 불변).
 2. 기존 aleph_common에는 이미 9개 테이블과 RLS, 공유 RPC가 구축되어 있습니다. 새 환경에서는 `supabase/schema.sql`을 먼저 적용합니다.
 3. 사용자별 운동 등록을 사용하려면 **그다음** `supabase/custom_exercises.sql`을 실행합니다. 운영 aleph_common에는 이미 적용되어 있으므로 재실행하지 않습니다.
-3. Supabase Authentication > URL Configuration에서 Site URL 및 Redirect URLs 설정 (개발: `http://localhost:3000`, 운영: 배포 도메인).
+3. 기존 Supabase Authentication > URL Configuration은 다른 ALEPH 과제와 공유하므로 유지합니다. 이번 회원가입은 이메일 링크로 복귀하지 않습니다.
 4. Project URL과 Publishable key를 사용합니다. Server secret key는 필요하지 않습니다.
-5. 로그인 이메일 인증을 켠 경우 확인 메일의 리디렉션 주소도 허용 목록에 있어야 합니다.
+5. FITPLAN 회원가입에 메일 인증은 사용하지 않습니다. 공용 Auth의 Confirm email 설정을 별도로 확인해야 합니다.
 
 > `schema.sql`은 신규 프로젝트 설치용입니다. 기존 스키마에 여러 번 반복 적용하는 마이그레이션 도구가 아닙니다. `exercise_catalog`에는 앱과 일치하는 초기 30개 종목이 삽입됩니다.
 
@@ -122,7 +122,7 @@ FITPLAN 필수 요구사항은 계정 생성·로그인·로그아웃 및 계정
 - 세션이 반환되지 않는 경우에는 기존 가입 이메일의 재가입 시도 또는 이메일 확인을 요구하는 설정 등 여러 원인이 있을 수 있으므로, 원인을 단정하지 않고 기존 계정 로그인/설정 점검을 안내합니다.
 - 공용 Supabase 프로젝트 aleph_common > Authentication > Providers > Email > **Confirm email OFF**가 필요합니다. 이 설정은 다른 ALEPH 과제에도 공통 적용됩니다.
 - **기존 auth.users 계정 및 다른 과제 테이블은 변경하지 않습니다.** 기존에 이메일 확인을 기다리는 계정이 이미 만들어졌다면 자동으로 가입 완료 처리되지 않을 수 있으므로, 우선 새 이메일로 테스트합니다.
-- 비밀번호를 잊었을 때만 선택적으로 이메일 재설정 기능을 사용합니다. 이 기능에는 이메일 발송이 필요할 수 있습니다.
+- 이메일 발송 한도 문제로 이번 과제에서 비밀번호 찾기·이메일 재설정 기능은 제공하지 않습니다. 계정 복구는 운영자 관리 범위로 남겨 두며 개인 메일 토큰을 공유하지 않습니다.
 - 이메일 소유 확인 없이 가입하므로 실제 공개 서비스 운영 시에는 임의 이메일 입력, 계정 남용에 유의해야 합니다. 이번 과제의 테스트용 가입 흐름을 단순화한 선택입니다.
 
 ### 가입 및 로그인 검증
@@ -133,18 +133,10 @@ FITPLAN 필수 요구사항은 계정 생성·로그인·로그아웃 및 계정
 - [ ] 이미 가입된 이메일 중복 가입 거절 및 비밀번호 오류 확인
 - [ ] 계정 A/B가 서로의 루틴과 기록에 접근하지 못하는지 확인
 
-## 비밀번호 재설정 링크가 localhost로 가는 문제 (2026-11-02)
+## 메일 관련 기능 제외 (2026-11-02)
 
-FITPLAN 비밀번호 재설정 메일의 복귀 주소는 `https://fitplan-sdydy0298-dotcom.vercel.app/reset-password`입니다.
-코드에서는 로컬 개발 서버에서 요청하더라도 기본적으로 운영 주소를 사용하며, 필요한 경우 `NEXT_PUBLIC_APP_URL`로 변경할 수 있습니다.
-
-**필수 설정 — Supabase 관리자에서 한 번만 처리**
-
-1. [aleph_common → Authentication → URL Configuration](https://supabase.com/dashboard/project/gbhmupoxedmyphjnudhb/auth/url-configuration)으로 이동합니다.
-2. **Redirect URLs** 목록에 `https://fitplan-sdydy0298-dotcom.vercel.app/reset-password`를 정확히 추가하고 저장합니다.
-3. 기존 ALEPH 다른 과제의 Redirect URLs는 그대로 유지합니다. **Site URL을 FITPLAN으로 무작정 바꾸지 마세요.** Site URL은 공용 Auth의 기본 복귀 주소로, 다른 과제에 영향을 줄 수 있습니다.
-4. 변경 전에 받은 `localhost:3000` 메일 링크는 이미 잘못 만들어졌으므로 폐기하고 FITPLAN 배포 사이트에서 **새 비밀번호 재설정 메일을 다시 요청**합니다.
-5. 새 메일 링크를 클릭하면 FITPLAN의 `/reset-password` 페이지에서 새 비밀번호를 설정하고, 자동 로그아웃 후 수동 로그인합니다.
-6. 액세스 토큰과 갱신 토큰이 포함된 `#access_token=...` 링크는 누구에게도 전달하지 마세요. 세션 URL이 노출됐다면 안전을 위해 해당 계정의 세션을 종료하고 새 비밀번호를 설정합니다.
-
-검증 시나리오: **새 메일의 링크가 운영 FITPLAN /reset-password로 연결되는지 → 비밀번호 업데이트 → 새 비밀번호 로그인**. 위 Auth URL 설정은 연결된 Supabase 도구에서 직접 변경할 수 없으며, 실제 재설정 링크의 동작은 사용자 브라우저 테스트가 필요합니다.
+- 이번 과제의 P0 기능인 계정 생성·로그인·로그아웃, 개인 루틴·기록, 공유·복사에 집중합니다.
+- FITPLAN UI의 '비밀번호 찾기', '/reset-password', '/auth/confirmed' 및 이메일 인증/인증번호 요청 화면은 사용하지 않습니다.
+- 비밀번호를 잃어버린 계정의 직접 복구 UI는 없습니다. 계정 복구 기능은 향후 별도의 이메일 발송 체계를 구축한 뒤 추가할 수 있습니다.
+- **주의:** FITPLAN이 속한 공용 Supabase Auth에서 Confirm email이 ON이라면 신규 가입이 완료되지 않습니다. 과제 테스트를 위해 이메일 확인 없이 가입하려면 Supabase 관리자 화면에서 OFF로 바꾸어야 합니다. 이 토글은 FITPLAN 전용이 아니며 기존 ALEPH 앱 가입 정책에도 영향을 줍니다.
+- 기존 인증 대기 계정은 다른 이메일로 새로 가입해 검증합니다. 관리자로부터 계정을 확인하거나 기존 계정으로 로그인해도 됩니다.
