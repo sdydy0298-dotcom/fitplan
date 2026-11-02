@@ -112,11 +112,47 @@ Workbench는 이 저장소의 코드를 작성한 주체가 아니라 **독립�
 - 공유 루틴을 익명 열람할 때 직접 등록 운동은 이름만 노출합니다. 다른 계정에서 복사하면 해당 계정 소유의 운동으로 복제합니다.
 - 새 계정 A/B로 직접 등록·재사용·타인 목록 비공개·공유·복사를 별도 검증해야 합니다.
 
-## 계정 가입 및 비밀번호 재설정 (FITPLAN)
 
-- FITPLAN은 기존 `aleph_common` Supabase Auth 계정을 공유합니다. 이전 ALEPH 과제에서 가입했던 이메일은 **재가입되지 않습니다**. 기존 암호로 로그인하거나 **비밀번호 찾기**를 이용하세요.
-- 최초로 사용하는 이메일이라면 회원가입 창에서 계정을 만들고, Supabase Auth에서 확인 메일이 요구되는 경우 메일 인증 후 로그인하세요.
-- 비밀번호 찾기는 `/login`에서 **비밀번호를 잊으셨나요?** → 이메일 발송 → `/reset-password`에서 새 암호 입력 → 새 암호로 다시 로그인 흐름입니다.
-- Auth > URL Configuration의 Redirect URLs에 운영 `https://fitplan-sdydy0298-dotcom.vercel.app/**` 또는 더 좁은 `https://fitplan-sdydy0298-dotcom.vercel.app/reset-password` 및 `https://fitplan-sdydy0298-dotcom.vercel.app/login`을 등록해야 메일 링크가 FITPLAN으로 복귀합니다. **기존 ALEPH의 URL은 제거하지 않습니다.**
-- Supabase 기본 메일 서버는 프로젝트 조직 팀에 소속된 이메일로만 발송할 수 있습니다. 외부 사용자 가입과 비밀번호 재설정 메일을 제공하려면 Custom SMTP를 설정해야 합니다. 기존 공유 Supabase Auth의 이메일 확인 설정을 임의로 끄지 마세요.
-- Supabase Auth는 이미 등록된 이메일의 회원가입 요청을 계정 존재 여부 보호를 위해 성공처럼 응답할 수 있습니다. 따라서 가입 버튼의 성공 응답만으로 새 계정 생성 여부를 단정하지 않습니다.
+## 6자리 이메일 OTP 회원가입 / 계정 복구
+
+FITPLAN은 Supabase Auth를 기존 ALEPH 프로젝트와 공유하지만, 회원가입 화면에서는
+기존 Confirm Email 설정을 수정하지 않고 다음 흐름을 사용합니다.
+
+1. 회원가입 → 이메일 입력 → 인증번호 요청 (Supabase signInWithOtp, shouldCreateUser: true)
+2. 받은 이메일에 표시된 6자리 숫자 입력 (verifyOtp, type: email)
+3. 인증 성공 후 새 비밀번호 및 확인 입력 (updateUser)
+4. 자동 로그아웃 → 로그인 화면 → 이메일과 비밀번호로 직접 로그인
+
+비밀번호 찾기에서는 같은 인증 절차를 사용하되 shouldCreateUser: false로
+기존 계정만 확인합니다. 기존 Supabase Auth 이메일을 인증하고 비밀번호를 바꾸면
+그 이메일로 이용하던 **다른 ALEPH 과제 로그인 비밀번호도 변경**됩니다.
+기존 사용자 목록이나 다른 과제 데이터는 수정하지 않습니다.
+
+### 필수 운영 설정: 이메일 발송은 아직 별도 준비가 필요합니다
+
+현재 GitHub/Vercel 코드 배포만으로 외부 이메일 발송이 자동 설정되지는 않습니다.
+
+- Supabase Dashboard → aleph_common → Authentication → Email Templates → Magic Link:
+  인증 이메일 본문에 **{{ .Token }}**을 포함해야 6자리 OTP가 보입니다.
+  준비된 템플릿은 supabase/fitplan-otp-email-template.html입니다.
+  ALEPH 프로젝트끼리 이메일 템플릿을 공유하므로 기존 내용을 백업하고
+  다른 앱에서 Magic Link가 여전히 동작하는지도 테스트해야 합니다.
+  제공 예시에는 호환성을 위해 {{ .ConfirmationURL }} 링크도 유지했습니다.
+- Supabase Dashboard → aleph_common → Authentication → SMTP:
+  실제 외부 가입자에게 메일을 보내려면 **Custom SMTP** 연결이 필요합니다.
+  기본 제공 발송 서버는 Supabase 조직 팀원 이메일로만 발송할 수 있습니다.
+  별도 SMTP 인증정보가 연결되지 않아 **아직 일반 이메일 OTP 실수신은 미검증**입니다.
+- 기존 Redirect URLs는 제거하지 말고 FITPLAN /reset-password URL을 추가하세요.
+  링크를 누르는 기존 경로도 이 페이지에서 비밀번호를 설정할 수 있습니다.
+- UI의 재발송 대기는 65초이며 Supabase 서버의 요청 제한과 OTP 만료 시간이 우선합니다.
+  안내 문구에서 '요청을 접수했습니다'와 '실제 메일 수신 완료'를 구분합니다.
+- 이메일, 비밀번호, 인증번호, SMTP 인증정보를 GitHub와 채팅에 노출하지 마세요.
+
+### 인증 통합 테스트 (운영 설정 후 수행)
+
+- [ ] 신규 이메일에 실제 OTP 수신 → 6자리 입력 → 비밀번호 설정 → 수동 로그인
+- [ ] 잘못된/만료된 인증번호 거절, 재전송 제한 표시
+- [ ] 기존 이메일에서 비밀번호 찾기 OTP → 비밀번호 변경 → 로그인
+- [ ] 이메일 링크 대체 경로 /reset-password 동작
+- [ ] 비로그인 사용자 데이터 RLS 차단, 기존 과제 계정 로그인에 영향 없는지 확인
+

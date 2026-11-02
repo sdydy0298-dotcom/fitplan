@@ -89,3 +89,23 @@
 .custom-exercise-form .field-grid{gap:12px}
 .custom-exercise-form>button[type=submit]{align-self:flex-start}
 @media(max-width:720px){.custom-exercise-form{padding:15px}.custom-exercise-tools .btn{white-space:normal;text-align:left}.custom-exercise-form>button[type=submit]{width:100%}}
+
+/* FITPLAN email OTP signup and account recovery */
+.auth-wrap{max-width:480px}
+.otp-progress{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:20px 0 22px}
+.otp-progress-step{display:flex;align-items:center;flex-direction:column;gap:7px;color:#9aadb0;font-weight:700}
+.otp-progress-step span{display:grid;place-items:center;width:31px;height:31px;background:#f1f5f3;color:#769092;border-radius:50%;border:1px solid #e0e8e2;font-size:12px}
+.otp-progress-step small{font-size:11px}
+.otp-progress-step.active span{background:#17383c;color:#c8f275;border-color:#17383c}
+.otp-progress-step.active small{color:#213e3b}
+.otp-progress-step.done span{background:#e7f5d8;color:#3e713e;border-color:#cde9b6}
+.otp-hint{display:flex;gap:9px;align-items:flex-start;margin:2px 0 0;font-size:12px;color:#667e85;line-height:1.7}
+.otp-input{display:block;width:100%;border:1px solid #dce5e4;background:#fff;color:#17333c;border-radius:12px;outline:0;padding:14px 16px;text-align:center;font-size:32px;font-weight:800;letter-spacing:.25em;font-variant-numeric:tabular-nums;min-height:65px}
+.otp-input:focus{border-color:#8abb55;box-shadow:0 0 0 3px #c4eea466}
+.otp-input::placeholder{color:#bdc8c9}
+.otp-help-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:13px}
+.otp-help-row .text-link{display:inline-flex;align-items:center;gap:6px;padding:5px 0;border:0;background:none;font-size:12px;font-weight:700;color:#4f7772;text-decoration:none}
+.otp-help-row .text-link:disabled{opacity:.5;cursor:not-allowed}
+.otp-auth-bottom{justify-content:center;margin-top:16px}
+.otp-verified{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:11px;background:#eaf5df;color:#397146;font-weight:800;font-size:13px}
+@media(max-width:480px){.auth-panel{padding:25px 20px}.otp-input{font-size:27px}}
