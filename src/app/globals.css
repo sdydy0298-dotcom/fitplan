@@ -90,44 +90,8 @@
 .custom-exercise-form>button[type=submit]{align-self:flex-start}
 @media(max-width:720px){.custom-exercise-form{padding:15px}.custom-exercise-tools .btn{white-space:normal;text-align:left}.custom-exercise-form>button[type=submit]{width:100%}}
 
-/* Standard email/password signup with confirmation link */
+/* FITPLAN account form */
 .auth-wrap{max-width:480px}
-.auth-confirmation{margin-top:18px;text-align:center}
-.auth-confirmation h2{font-size:21px;margin:15px 0 8px;letter-spacing:-.04em}
-.auth-confirmation>p{font-size:13px;line-height:1.7}
-.auth-confirmation-icon{height:58px;width:58px;background:#ecf7d9;color:#498245;border-radius:18px;display:grid;place-items:center;margin:16px auto}
-.auth-confirmation-icon-muted{background:#f1f4f4;color:#66818a}
-.auth-confirmation-address{background:#f3f7f3;border-radius:10px;padding:11px 12px;color:#1e4b49!important;font-size:13px!important;font-weight:800;overflow-wrap:anywhere}
-.auth-confirmation-actions{display:flex;flex-direction:column;gap:9px;margin-top:19px}
-.auth-confirmation-actions .btn{justify-content:center;width:100%;min-height:45px;gap:8px}
-.auth-confirmation-actions .btn:disabled{opacity:.52;cursor:not-allowed}
-.auth-back{display:inline-flex;align-items:center;gap:6px;margin:13px auto 0;background:none;border:0;color:#5b7881;font-size:12px}
 .auth-bottom-link{text-align:center;margin-top:17px}
-.auth-bottom-link button{background:none;border:0;color:#4d7d6a;font-size:12px;font-weight:700}
-.auth-confirmed-page{text-align:center}
-.auth-confirmed-page h1{font-size:29px}
-.auth-confirmed-page>p{line-height:1.65}
-.auth-confirm-login{margin-top:20px;justify-content:center;width:100%}
+.auth-bottom-link .text-link{border:0;background:transparent;color:#4d7d6a;font-size:12px;font-weight:700;cursor:pointer}
 @media(max-width:480px){.auth-panel{padding:26px 22px}}
-
-/* Inline email confirmation inside the normal sign-up form. */
-.signup-email-row{display:flex;align-items:end;gap:9px}
-.signup-email-row>.input-field{min-width:0;flex:1}
-.signup-email-row>.btn{min-height:42px;flex-shrink:0}
-.signup-send-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:3px}
-.signup-send-row>.btn{min-height:42px;gap:7px}
-.signup-send-row>.field-hint{margin:0;flex:1;min-width:150px}
-.signup-code-panel{display:flex;align-items:end;gap:10px;margin-top:2px}
-.signup-code-panel>.input-field{flex:1;min-width:0}
-.signup-code-panel>.btn{flex-shrink:0;min-height:46px;align-items:center;display:inline-flex;gap:6px;border:1px solid #cdded7;border-radius:10px;padding:0 15px}
-.signup-code-panel input.signup-code-input{font-weight:800;font-size:20px;letter-spacing:.26em;font-variant-numeric:tabular-nums;text-align:center;color:#173c40}
-.signup-code-panel input.signup-code-input::placeholder{color:#aebec0}
-.signup-code-panel input.signup-code-input:disabled{opacity:.6}
-.signup-verified{display:flex;align-items:center;gap:8px;overflow-wrap:anywhere;font-weight:800;color:#326c4b;font-size:12px;background:#eaf6e7;border:1px solid #d2e8ca;padding:11px 13px;border-radius:11px}
-.signup-code-panel button:disabled,.signup-send-row button:disabled{cursor:not-allowed;opacity:.55}
-@media(max-width:480px){.signup-send-row{align-items:stretch;flex-direction:column}.signup-send-row>.field-hint{flex:auto;min-width:0}.signup-code-panel>.btn{padding:0 12px;font-size:12px}}
-
-.signup-existing-help{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
-.signup-existing-help p{margin:0}
-.signup-existing-help button{padding:4px 0;border:0;background:none;color:#4d7d6a;font-size:12px;font-weight:700;text-align:left;cursor:pointer}
-.signup-existing-help button:disabled{opacity:.5;cursor:not-allowed}
