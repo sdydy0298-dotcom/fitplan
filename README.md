@@ -111,3 +111,12 @@ Workbench는 이 저장소의 코드를 작성한 주체가 아니라 **독립�
 - 운동은 계정별로 비공개 저장되고, 다음 루틴과 운동 기록에서 반복 선택할 수 있습니다. 기본 가이드 30개는 그대로 유지됩니다.
 - 공유 루틴을 익명 열람할 때 직접 등록 운동은 이름만 노출합니다. 다른 계정에서 복사하면 해당 계정 소유의 운동으로 복제합니다.
 - 새 계정 A/B로 직접 등록·재사용·타인 목록 비공개·공유·복사를 별도 검증해야 합니다.
+
+## 계정 가입 및 비밀번호 재설정 (FITPLAN)
+
+- FITPLAN은 기존 `aleph_common` Supabase Auth 계정을 공유합니다. 이전 ALEPH 과제에서 가입했던 이메일은 **재가입되지 않습니다**. 기존 암호로 로그인하거나 **비밀번호 찾기**를 이용하세요.
+- 최초로 사용하는 이메일이라면 회원가입 창에서 계정을 만들고, Supabase Auth에서 확인 메일이 요구되는 경우 메일 인증 후 로그인하세요.
+- 비밀번호 찾기는 `/login`에서 **비밀번호를 잊으셨나요?** → 이메일 발송 → `/reset-password`에서 새 암호 입력 → 새 암호로 다시 로그인 흐름입니다.
+- Auth > URL Configuration의 Redirect URLs에 운영 `https://fitplan-sdydy0298-dotcom.vercel.app/**` 또는 더 좁은 `https://fitplan-sdydy0298-dotcom.vercel.app/reset-password` 및 `https://fitplan-sdydy0298-dotcom.vercel.app/login`을 등록해야 메일 링크가 FITPLAN으로 복귀합니다. **기존 ALEPH의 URL은 제거하지 않습니다.**
+- Supabase 기본 메일 서버는 프로젝트 조직 팀에 소속된 이메일로만 발송할 수 있습니다. 외부 사용자 가입과 비밀번호 재설정 메일을 제공하려면 Custom SMTP를 설정해야 합니다. 기존 공유 Supabase Auth의 이메일 확인 설정을 임의로 끄지 마세요.
+- Supabase Auth는 이미 등록된 이메일의 회원가입 요청을 계정 존재 여부 보호를 위해 성공처럼 응답할 수 있습니다. 따라서 가입 버튼의 성공 응답만으로 새 계정 생성 여부를 단정하지 않습니다.
