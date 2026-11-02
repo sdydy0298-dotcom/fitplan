@@ -24,3 +24,18 @@
 @media (max-width:1100px){.exercise-library-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:720px){.exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.exercise-art{height:137px}.exercise-card-body{padding:12px}.exercise-card-body h3{font-size:13px}.exercise-card-bottom span{font-size:10px}.guide-hero{height:225px}}
 @media (max-width:420px){.exercise-art{height:115px}.exercise-art>span{font-size:8px;padding:2px 5px}.guide-hero{height:200px}}
+
+/* Actual exercise-specific 512x512 illustrations; do not crop the athlete. */
+.exercise-library-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+.exercise-art{background:#dff1fa;height:176px;overflow:hidden}
+.exercise-art .exercise-illustration{width:100%;height:100%;object-fit:contain;display:block;transform:none}
+.exercise-card:hover .exercise-art .exercise-illustration{transform:scale(1.025)}
+.guide-hero{background:#dff1fa;height:335px;overflow:hidden}
+.guide-hero .exercise-illustration{width:100%;height:100%;display:block;object-fit:contain}
+.illustration-note{font-size:11px;color:#73848d;line-height:1.7}
+.site-footer{flex-wrap:wrap;gap:12px}
+.site-footer a{color:#5b8568;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:1100px){.exercise-library-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:850px){.exercise-library-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:720px){.exercise-library-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.exercise-art{height:155px}.guide-hero{height:260px}}
+@media(max-width:420px){.exercise-art{height:124px}.guide-hero{height:215px}}
