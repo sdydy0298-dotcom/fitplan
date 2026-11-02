@@ -80,6 +80,9 @@ Deno.serve(async (request: Request) => {
     return response(origin, 400, { error: "비밀번호는 8~128자로 입력해 주세요." });
   }
 
+  const action = values.action === "register-v2" || values.action === "login-v2" ? values.action : null;
+  if (!action) return response(origin, 400, {error:"지원하지 않는 인증 요청입니다."});
+
   const client = createClient(projectUrl, serverKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
@@ -93,14 +96,13 @@ Deno.serve(async (request: Request) => {
     "unknown"
   ).trim().slice(0, 96);
   const salt = serverKey.slice(-32);
-  const mode = values.action === "login-v2" ? "login" : "register";
-  const rules: Array<[string, number, number]> = mode === "login" ? [
+  const rules: Array<[string, number, number]> = action === "login-v2" ? [
     ["login:ip:" + gatewayIp, 20, 900],
     ["login:email:" + email, 8, 900],
   ] : [
-    ["ip:" + gatewayIp, 4, 3600],
-    ["email:" + email, 3, 86400],
-    ["total:fitplan", 30, 3600],
+    ["v2:ip:" + gatewayIp, 4, 3600],
+    ["v2:email:" + email, 3, 86400],
+    ["v2:total:fitplan", 30, 3600],
   ];
   for (const [subject, limit, seconds] of rules) {
     const hashed = await hexHash(salt + "|" + subject);
@@ -116,7 +118,6 @@ Deno.serve(async (request: Request) => {
     if (data !== true) return response(origin, 429, { error: "회원가입 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요." });
   }
 
-  const action = values.action === "register-v2" || values.action === "login-v2" ? values.action : "legacy";
   if (action === "register-v2") {
     const { data: found, error: lookupError } = await client.schema("fitplan").from("users")
       .select("user_id").eq("email", email).maybeSingle();
@@ -165,18 +166,4 @@ Deno.serve(async (request: Request) => {
       refresh_token:signedIn.session.refresh_token});
   }
 
-  try {
-    // Legacy path, kept until frontend rollout.
-    const { error } = await client.auth.admin.createUser({
-      email, password, email_confirm: true
-    });
-    if (error) {
-      if (error.status === 422 || /already|exist|duplicate/i.test(error.message))
-        return response(origin, 409, { error: "이미 가입된 이메일입니다." });
-      return response(origin, 503, { error: "회원가입을 처리하지 못했습니다." });
-    }
-    return response(origin, 200, { ok: true });
-  } catch {
-    return response(origin, 503, { error: "회원가입 처리 중 문제가 발생했습니다." });
-  }
 });
