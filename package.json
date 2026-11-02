@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "check:source": "node scripts/check-source.mjs"
+    "check:source": "node scripts/check-source.mjs",
+    "check:planner": "node scripts/test-planner.mjs",
+    "prebuild": "npm run check:planner"
   },
   "dependencies": {
     "next": "16.4.3",
@@ -22,5 +24,7 @@
     "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3"
   },
-  "engines": {"node": ">=22"}
+  "engines": {
+    "node": ">=22"
+  }
 }
