@@ -48,17 +48,25 @@ export default function Login(){
     if(password.length<8)throw new Error('비밀번호는 8자 이상 입력해 주세요.');
     if(password!==passwordAgain)throw new Error('비밀번호 확인이 일치하지 않습니다.');
 
-    // With Supabase Auth > Email > Confirm email disabled, signUp returns a session.
-    // Never mark a pending / unconfirmed registration as completed.
-    const {data,error}=await db.auth.signUp({email:address,password});
-    if(error)throw error;
-    if(!data.user)throw new Error('회원가입 결과를 확인하지 못했습니다. 다시 시도해 주세요.');
-    if(!data.session){
-     setError('지금 이메일로 새 계정을 바로 만들 수 없습니다. 이미 가입된 이메일이라면 로그인해 주세요. 처음 사용하는 이메일인데도 이 안내가 나오면 Supabase의 이메일 확인 설정을 점검해야 합니다.');
-     return;
+    // FITPLAN-only server registration bypasses email confirmation for new users.
+    // The service-role key never reaches this client or the Git repository.
+    const {data:registration,error:registerError}=await db.functions.invoke('fitplan-register',{
+     body:{email:address,password}
+    });
+    if(registerError){
+     let message='회원가입을 완료하지 못했습니다. 다시 시도해 주세요.';
+     const context=(registerError as {context?:unknown}).context;
+     if(context instanceof Response){
+      try{
+       const payload=await context.json() as {error?:string};
+       if(typeof payload.error==='string')message=payload.error;
+      }catch{}
+     }
+     throw new Error(message);
     }
-    const {error:signOutError}=await db.auth.signOut({scope:'local'});
-    if(signOutError)throw new Error('계정은 생성됐지만 자동 로그아웃에 실패했습니다. 로그아웃한 뒤 다시 로그인해 주세요.');
+    if(!(registration as {ok?:boolean}|null)?.ok){
+     throw new Error('회원가입 결과를 확인하지 못했습니다. 다시 시도해 주세요.');
+    }
     setMode('login');setPassword('');setPasswordAgain('');
     setNotice('회원가입이 완료됐습니다. 이제 이메일과 비밀번호로 로그인해 주세요.');
     return;

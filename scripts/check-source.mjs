@@ -13,9 +13,13 @@ const checks={
  'Copy route exists':fs.existsSync(new URL('src/app/api/share/[token]/copy/route.ts',base)),
  '30 exercise image assets': [...read('src/lib/exercises.ts').matchAll(/^  [{]id:'([^']+)'/gm)].length === 30 && [...read('src/lib/exercises.ts').matchAll(/^  [{]id:'([^']+)'/gm)].every(m=>fs.existsSync(new URL('public/exercises/'+m[1]+'.webp',base))),
  'No email delivery dependency':!read('src/app/login/page.tsx').includes('resetPasswordForEmail')&&!read('src/app/login/page.tsx').includes('verifyOtp')&&!fs.existsSync(new URL('src/app/reset-password/page.tsx',base)),
- 'Simple signup without OTP':read('src/app/login/page.tsx').includes('db.auth.signUp({email:address,password})')&&!read('src/app/login/page.tsx').includes('verifyOtp')&&!read('src/app/login/page.tsx').includes('인증번호 보내기'),
- 'Signup does not auto login':read('src/app/login/page.tsx').includes("db.auth.signOut({scope:'local'})")&&read('src/app/login/page.tsx').includes('setMode(\'login\')'),
- 'Signup checks missing session':read('src/app/login/page.tsx').includes('if(!data.session)')&&read('src/app/login/page.tsx').includes('Confirm email'),
+
+
+
+ 'FITPLAN server signup':read('src/app/login/page.tsx').includes("functions.invoke('fitplan-register'")&&read('supabase/functions/fitplan-register/index.ts').includes('auth.admin.createUser'),
+ 'Signup uses no email delivery':!read('src/app/login/page.tsx').includes('auth.signUp(')&&!read('src/app/login/page.tsx').includes('verifyOtp')&&read('supabase/functions/fitplan-register/index.ts').includes('email_confirm: true'),
+ 'Signup server rate limits':read('supabase/functions/fitplan-register/index.ts').includes('allow_signup_attempt')&&read('supabase/fitplan_signup_throttle.sql').includes('enable row level security'),
+ 'Signup remains manual login':read('src/app/login/page.tsx').includes("setMode('login')")&&!read('src/app/login/page.tsx').includes('signOut('),
  '30 exercise guides':(read('src/lib/exercises.ts').match(/^  \{id:'/gm)||[]).length===30,
  '30 seeded catalog rows':(read('supabase/schema.sql').match(/https:\/\/www\.muscleandstrength\.com\/exercises\//g)||[]).length===30,
  'All user data CRUD policies':['routines','routine_days','routine_items','routine_shares','workout_sessions','workout_entries','workout_sets'].every(t=>['select','insert','update','delete'].every(op=>read('supabase/schema.sql').includes(`on fitplan.${t} for ${op}`))),
