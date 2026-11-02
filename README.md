@@ -17,7 +17,7 @@ Next.js + TypeScript + Supabase(PostgreSQL/Auth/RLS) + Vercel 기반의 반응�
 
 ## 0. 환경 요구사항
 
-Node.js 22 이상, npm, 별도 Supabase 프로젝트 하나, Vercel 계정(배포 시) 필요합니다.
+Node.js 22 이상, npm, 기존 aleph_common Supabase 프로젝트의 fitplan 스키마, Vercel 계정(배포 시) 필요합니다.
 
 ## 1. 의존성 설치
 
@@ -27,14 +27,14 @@ npm install
 
 처음 설치하면 `package-lock.json`이 생성됩니다. **그 파일도 GitHub에 함께 커밋하세요.** 이번 소스 배포 작업 환경에서는 npm 레지스트리 접근이 불가능해 lockfile과 실제 Next 빌드 검증이 완료되지 않았습니다. 연결 가능한 PC/Workbench에서 `npm install && npm run build`로 검증해야 합니다.
 
-## 2. 새로운 Supabase 프로젝트 생성
+## 2. 기존 aleph_common 프로젝트의 fitplan 스키마 활용
 
-**다른 ALEPH 과제의 DB를 사용하지 마세요.** 별도의 FITPLAN 전용 Supabase 프로젝트를 새로 만드세요.
+기존 aleph_common 프로젝트 내부의 fitplan 스키마만 사용합니다. 다른 과제 스키마는 변경하지 않습니다.
 
-1. Supabase 새 프로젝트 생성 (기존 DB 불변).
-2. **SQL Editor**에서 `supabase/schema.sql` 전체를 새 프로젝트에 **한 번만** 실행합니다.
+1. Supabase 기존 aleph_common 프로젝트 선택 (기존 과제 테이블 불변).
+2. fitplan 스키마, 9개 테이블, RLS 및 RPC는 aleph_common에 설치되어 있습니다. 신규 환경일 때에만 `supabase/schema.sql`을 적용합니다.
 3. Supabase Authentication > URL Configuration에서 Site URL 및 Redirect URLs 설정 (개발: `http://localhost:3000`, 운영: 배포 도메인).
-4. Project Connect/API Keys에서 Project URL 및 Publishable key, 서버용 Secret key를 확인합니다.
+4. Project URL과 Publishable key를 사용합니다. Server secret key는 필요하지 않습니다.
 5. 로그인 이메일 인증을 켠 경우 확인 메일의 리디렉션 주소도 허용 목록에 있어야 합니다.
 
 > `schema.sql`은 신규 프로젝트 설치용입니다. 기존 스키마에 여러 번 반복 적용하는 마이그레이션 도구가 아닙니다. `exercise_catalog`에는 앱과 일치하는 초기 18개 종목이 삽입됩니다.
@@ -50,13 +50,13 @@ cp .env.example .env.local
 ```dotenv
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
-SUPABASE_SECRET_KEY=sb_secret_...
+# Secret key is not required: shared routine RPCs are scoped to fitplan schema.
 ```
 
 - `NEXT_PUBLIC_...` 값만 브라우저에 전송됩니다.
-- `SUPABASE_SECRET_KEY`는 오직 `/api/share/...` 서버에서 사용됩니다. **절대 `NEXT_PUBLIC_` 접두사를 붙이거나 GitHub에 커밋하지 마세요.**
-- 레거시 프로젝트에서 service role key만 사용하는 경우 서버에서 `SUPABASE_SERVICE_ROLE_KEY`도 인식하도록 했습니다.
-- 공유 기능에 서버용 키가 필요하지만, **클라이언트는 비공개 루틴을 직접 조회할 수 없습니다.** 공유 토큰을 확인한 서버가 허용 필드만 반환합니다.
+- 공개 공유는 fitplan.get_public_routine RPC, 로그인 복사는 fitplan.copy_public_routine RPC를 사용합니다.
+- 기존 과제에서 사용하는 별도 서버 비밀 키를 FITPLAN에 복사하지 마세요.
+- 익명 사용자는 공유 토큰으로 허용된 루틴 콘텐츠만 읽고 개인 기록은 읽지 못합니다.
 
 ## 4. 실행 / 빌드
 
@@ -72,7 +72,7 @@ npm run build
 ## 5. Vercel 배포
 
 1. GitHub에 코드를 푸시하고 Vercel의 `New Project`에서 해당 저장소 Import.
-2. 위 환경변수 3개를 Vercel 프로젝트 환경변수에 각각 등록.
+2. 위 환경변수 2개를 Vercel 프로젝트 환경변수에 각각 등록.
 3. 프로덕션 URL을 Supabase Auth Redirect URLs에 추가.
 4. 재배포한 뒤 아래의 테스트를 수행.
 

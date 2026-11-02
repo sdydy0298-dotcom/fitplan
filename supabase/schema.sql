@@ -1,13 +1,14 @@
--- FITPLAN v1: Run ONLY in a fresh, dedicated Supabase project.
--- Do not apply to existing ALEPH projects. PostgreSQL 15+ / Supabase Auth.
-create extension if not exists pgcrypto;
+-- FITPLAN isolated schema in existing aleph_common Supabase project.
+create schema if not exists fitplan;
+revoke all on schema fitplan from public;
+grant usage on schema fitplan to anon, authenticated, service_role;
 
-create table if not exists public.profiles (
+create table if not exists fitplan.profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   display_name text check (length(display_name) <= 40),
   created_at timestamptz not null default now()
 );
-create table if not exists public.exercise_catalog (
+create table if not exists fitplan.exercise_catalog (
   id text primary key,
   name text not null,
   muscle text not null,
@@ -20,7 +21,7 @@ create table if not exists public.exercise_catalog (
   link_checked_at date,
   created_at timestamptz not null default now()
 );
-create table if not exists public.routines (
+create table if not exists fitplan.routines (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid not null references auth.users(id) on delete cascade,
   title text not null check (length(btrim(title)) between 1 and 80),
@@ -28,152 +29,153 @@ create table if not exists public.routines (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
-create table if not exists public.routine_days (
+create table if not exists fitplan.routine_days (
   id uuid primary key default gen_random_uuid(),
-  routine_id uuid not null references public.routines(id) on delete cascade,
+  routine_id uuid not null references fitplan.routines(id) on delete cascade,
   weekday smallint not null check (weekday between 0 and 6),
   position smallint not null default 0,
   unique (routine_id, weekday)
 );
-create table if not exists public.routine_items (
+create table if not exists fitplan.routine_items (
   id uuid primary key default gen_random_uuid(),
-  routine_day_id uuid not null references public.routine_days(id) on delete cascade,
-  exercise_id text not null references public.exercise_catalog(id),
+  routine_day_id uuid not null references fitplan.routine_days(id) on delete cascade,
+  exercise_id text not null references fitplan.exercise_catalog(id),
   position smallint not null default 0,
   target_sets smallint not null check (target_sets between 1 and 15),
   target_reps smallint not null check (target_reps between 1 and 300),
   target_weight numeric(8,2) not null default 0 check (target_weight between 0 and 2000),
   notes text check (length(notes) <= 250)
 );
-create table if not exists public.routine_shares (
+create table if not exists fitplan.routine_shares (
   id uuid primary key default gen_random_uuid(),
-  routine_id uuid not null unique references public.routines(id) on delete cascade,
+  routine_id uuid not null unique references fitplan.routines(id) on delete cascade,
   owner_id uuid not null references auth.users(id) on delete cascade,
   token text not null unique check (token ~ '^[a-f0-9]{64}$'),
   active boolean not null default true,
   created_at timestamptz not null default now(),
   revoked_at timestamptz
 );
-create table if not exists public.workout_sessions (
+create table if not exists fitplan.workout_sessions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  routine_id uuid references public.routines(id) on delete set null,
+  routine_id uuid references fitplan.routines(id) on delete set null,
   performed_at date not null,
   notes text check (length(notes) <= 500),
   created_at timestamptz not null default now()
 );
-create table if not exists public.workout_entries (
+create table if not exists fitplan.workout_entries (
   id uuid primary key default gen_random_uuid(),
-  session_id uuid not null references public.workout_sessions(id) on delete cascade,
-  exercise_id text not null references public.exercise_catalog(id),
+  session_id uuid not null references fitplan.workout_sessions(id) on delete cascade,
+  exercise_id text not null references fitplan.exercise_catalog(id),
   position smallint not null default 0
 );
-create table if not exists public.workout_sets (
+create table if not exists fitplan.workout_sets (
   id uuid primary key default gen_random_uuid(),
-  workout_entry_id uuid not null references public.workout_entries(id) on delete cascade,
+  workout_entry_id uuid not null references fitplan.workout_entries(id) on delete cascade,
   set_no smallint not null check (set_no between 1 and 20),
   reps smallint not null check (reps between 0 and 300),
   weight numeric(8,2) not null default 0 check (weight between 0 and 2000),
   unique (workout_entry_id, set_no)
 );
-create index if not exists idx_routines_owner on public.routines(owner_id,updated_at desc);
-create index if not exists idx_workouts_owner_date on public.workout_sessions(user_id,performed_at desc);
-create index if not exists idx_shares_active_token on public.routine_shares(token) where active;
+create index if not exists idx_routines_owner on fitplan.routines(owner_id,updated_at desc);
+create index if not exists idx_workouts_owner_date on fitplan.workout_sessions(user_id,performed_at desc);
+create index if not exists idx_shares_active_token on fitplan.routine_shares(token) where active;
 
-alter table public.profiles enable row level security;
-alter table public.exercise_catalog enable row level security;
-alter table public.routines enable row level security;
-alter table public.routine_days enable row level security;
-alter table public.routine_items enable row level security;
-alter table public.routine_shares enable row level security;
-alter table public.workout_sessions enable row level security;
-alter table public.workout_entries enable row level security;
-alter table public.workout_sets enable row level security;
+alter table fitplan.profiles enable row level security;
+alter table fitplan.exercise_catalog enable row level security;
+alter table fitplan.routines enable row level security;
+alter table fitplan.routine_days enable row level security;
+alter table fitplan.routine_items enable row level security;
+alter table fitplan.routine_shares enable row level security;
+alter table fitplan.workout_sessions enable row level security;
+alter table fitplan.workout_entries enable row level security;
+alter table fitplan.workout_sets enable row level security;
 
 -- Data API grants and RLS are TWO separate protections.
-revoke all on public.profiles,public.exercise_catalog,public.routines,public.routine_days,public.routine_items,
-  public.routine_shares,public.workout_sessions,public.workout_entries,public.workout_sets from anon,authenticated;
-grant select on public.exercise_catalog to anon,authenticated;
-grant select,insert,update,delete on public.profiles,public.routines,public.routine_days,public.routine_items,
-  public.routine_shares,public.workout_sessions,public.workout_entries,public.workout_sets to authenticated;
+grant select,insert,update,delete on all tables in schema fitplan to service_role;
+revoke all on fitplan.profiles,fitplan.exercise_catalog,fitplan.routines,fitplan.routine_days,fitplan.routine_items,
+  fitplan.routine_shares,fitplan.workout_sessions,fitplan.workout_entries,fitplan.workout_sets from anon,authenticated;
+grant select on fitplan.exercise_catalog to anon,authenticated;
+grant select,insert,update,delete on fitplan.profiles,fitplan.routines,fitplan.routine_days,fitplan.routine_items,
+  fitplan.routine_shares,fitplan.workout_sessions,fitplan.workout_entries,fitplan.workout_sets to authenticated;
 
-create policy "catalog visible" on public.exercise_catalog for select to anon,authenticated using (true);
-create policy "profile read" on public.profiles for select to authenticated using (user_id=(select auth.uid()));
-create policy "profile insert" on public.profiles for insert to authenticated with check (user_id=(select auth.uid()));
-create policy "profile update" on public.profiles for update to authenticated using (user_id=(select auth.uid())) with check (user_id=(select auth.uid()));
-create policy "profile delete" on public.profiles for delete to authenticated using (user_id=(select auth.uid()));
+create policy "catalog visible" on fitplan.exercise_catalog for select to anon,authenticated using (true);
+create policy "profile read" on fitplan.profiles for select to authenticated using (user_id=(select auth.uid()));
+create policy "profile insert" on fitplan.profiles for insert to authenticated with check (user_id=(select auth.uid()));
+create policy "profile update" on fitplan.profiles for update to authenticated using (user_id=(select auth.uid())) with check (user_id=(select auth.uid()));
+create policy "profile delete" on fitplan.profiles for delete to authenticated using (user_id=(select auth.uid()));
 
-create policy "routine read" on public.routines for select to authenticated using (owner_id=(select auth.uid()));
-create policy "routine insert" on public.routines for insert to authenticated with check (owner_id=(select auth.uid()));
-create policy "routine update" on public.routines for update to authenticated using (owner_id=(select auth.uid())) with check (owner_id=(select auth.uid()));
-create policy "routine delete" on public.routines for delete to authenticated using (owner_id=(select auth.uid()));
+create policy "routine read" on fitplan.routines for select to authenticated using (owner_id=(select auth.uid()));
+create policy "routine insert" on fitplan.routines for insert to authenticated with check (owner_id=(select auth.uid()));
+create policy "routine update" on fitplan.routines for update to authenticated using (owner_id=(select auth.uid())) with check (owner_id=(select auth.uid()));
+create policy "routine delete" on fitplan.routines for delete to authenticated using (owner_id=(select auth.uid()));
 
-create policy "day read" on public.routine_days for select to authenticated using (
-  exists(select 1 from public.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
-create policy "day insert" on public.routine_days for insert to authenticated with check (
-  exists(select 1 from public.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
-create policy "day update" on public.routine_days for update to authenticated using (
-  exists(select 1 from public.routines r where r.id=routine_id and r.owner_id=(select auth.uid()))) with check (
-  exists(select 1 from public.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
-create policy "day delete" on public.routine_days for delete to authenticated using (
-  exists(select 1 from public.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
+create policy "day read" on fitplan.routine_days for select to authenticated using (
+  exists(select 1 from fitplan.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
+create policy "day insert" on fitplan.routine_days for insert to authenticated with check (
+  exists(select 1 from fitplan.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
+create policy "day update" on fitplan.routine_days for update to authenticated using (
+  exists(select 1 from fitplan.routines r where r.id=routine_id and r.owner_id=(select auth.uid()))) with check (
+  exists(select 1 from fitplan.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
+create policy "day delete" on fitplan.routine_days for delete to authenticated using (
+  exists(select 1 from fitplan.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
 
-create policy "item read" on public.routine_items for select to authenticated using (
-  exists(select 1 from public.routine_days d join public.routines r on r.id=d.routine_id
+create policy "item read" on fitplan.routine_items for select to authenticated using (
+  exists(select 1 from fitplan.routine_days d join fitplan.routines r on r.id=d.routine_id
     where d.id=routine_day_id and r.owner_id=(select auth.uid())));
-create policy "item insert" on public.routine_items for insert to authenticated with check (
-  exists(select 1 from public.routine_days d join public.routines r on r.id=d.routine_id
+create policy "item insert" on fitplan.routine_items for insert to authenticated with check (
+  exists(select 1 from fitplan.routine_days d join fitplan.routines r on r.id=d.routine_id
     where d.id=routine_day_id and r.owner_id=(select auth.uid())));
-create policy "item update" on public.routine_items for update to authenticated using (
-  exists(select 1 from public.routine_days d join public.routines r on r.id=d.routine_id
+create policy "item update" on fitplan.routine_items for update to authenticated using (
+  exists(select 1 from fitplan.routine_days d join fitplan.routines r on r.id=d.routine_id
     where d.id=routine_day_id and r.owner_id=(select auth.uid()))) with check (
-  exists(select 1 from public.routine_days d join public.routines r on r.id=d.routine_id
+  exists(select 1 from fitplan.routine_days d join fitplan.routines r on r.id=d.routine_id
     where d.id=routine_day_id and r.owner_id=(select auth.uid())));
-create policy "item delete" on public.routine_items for delete to authenticated using (
-  exists(select 1 from public.routine_days d join public.routines r on r.id=d.routine_id
+create policy "item delete" on fitplan.routine_items for delete to authenticated using (
+  exists(select 1 from fitplan.routine_days d join fitplan.routines r on r.id=d.routine_id
     where d.id=routine_day_id and r.owner_id=(select auth.uid())));
 
-create policy "share read owner" on public.routine_shares for select to authenticated using (owner_id=(select auth.uid()));
-create policy "share insert owner" on public.routine_shares for insert to authenticated with check (
-  owner_id=(select auth.uid()) and exists(select 1 from public.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
-create policy "share update owner" on public.routine_shares for update to authenticated using (owner_id=(select auth.uid())) with check (
-  owner_id=(select auth.uid()) and exists(select 1 from public.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
-create policy "share delete owner" on public.routine_shares for delete to authenticated using (owner_id=(select auth.uid()));
+create policy "share read owner" on fitplan.routine_shares for select to authenticated using (owner_id=(select auth.uid()));
+create policy "share insert owner" on fitplan.routine_shares for insert to authenticated with check (
+  owner_id=(select auth.uid()) and exists(select 1 from fitplan.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
+create policy "share update owner" on fitplan.routine_shares for update to authenticated using (owner_id=(select auth.uid())) with check (
+  owner_id=(select auth.uid()) and exists(select 1 from fitplan.routines r where r.id=routine_id and r.owner_id=(select auth.uid())));
+create policy "share delete owner" on fitplan.routine_shares for delete to authenticated using (owner_id=(select auth.uid()));
 
-create policy "session read" on public.workout_sessions for select to authenticated using (user_id=(select auth.uid()));
-create policy "session insert" on public.workout_sessions for insert to authenticated with check (
-  user_id=(select auth.uid()) and (routine_id is null or exists(select 1 from public.routines r where r.id=routine_id and r.owner_id=(select auth.uid()))));
-create policy "session update" on public.workout_sessions for update to authenticated using (user_id=(select auth.uid())) with check (
-  user_id=(select auth.uid()) and (routine_id is null or exists(select 1 from public.routines r where r.id=routine_id and r.owner_id=(select auth.uid()))));
-create policy "session delete" on public.workout_sessions for delete to authenticated using (user_id=(select auth.uid()));
+create policy "session read" on fitplan.workout_sessions for select to authenticated using (user_id=(select auth.uid()));
+create policy "session insert" on fitplan.workout_sessions for insert to authenticated with check (
+  user_id=(select auth.uid()) and (routine_id is null or exists(select 1 from fitplan.routines r where r.id=routine_id and r.owner_id=(select auth.uid()))));
+create policy "session update" on fitplan.workout_sessions for update to authenticated using (user_id=(select auth.uid())) with check (
+  user_id=(select auth.uid()) and (routine_id is null or exists(select 1 from fitplan.routines r where r.id=routine_id and r.owner_id=(select auth.uid()))));
+create policy "session delete" on fitplan.workout_sessions for delete to authenticated using (user_id=(select auth.uid()));
 
-create policy "entry read" on public.workout_entries for select to authenticated using (
-  exists(select 1 from public.workout_sessions s where s.id=session_id and s.user_id=(select auth.uid())));
-create policy "entry insert" on public.workout_entries for insert to authenticated with check (
-  exists(select 1 from public.workout_sessions s where s.id=session_id and s.user_id=(select auth.uid())));
-create policy "entry update" on public.workout_entries for update to authenticated using (
-  exists(select 1 from public.workout_sessions s where s.id=session_id and s.user_id=(select auth.uid()))) with check (
-  exists(select 1 from public.workout_sessions s where s.id=session_id and s.user_id=(select auth.uid())));
-create policy "entry delete" on public.workout_entries for delete to authenticated using (
-  exists(select 1 from public.workout_sessions s where s.id=session_id and s.user_id=(select auth.uid())));
+create policy "entry read" on fitplan.workout_entries for select to authenticated using (
+  exists(select 1 from fitplan.workout_sessions s where s.id=session_id and s.user_id=(select auth.uid())));
+create policy "entry insert" on fitplan.workout_entries for insert to authenticated with check (
+  exists(select 1 from fitplan.workout_sessions s where s.id=session_id and s.user_id=(select auth.uid())));
+create policy "entry update" on fitplan.workout_entries for update to authenticated using (
+  exists(select 1 from fitplan.workout_sessions s where s.id=session_id and s.user_id=(select auth.uid()))) with check (
+  exists(select 1 from fitplan.workout_sessions s where s.id=session_id and s.user_id=(select auth.uid())));
+create policy "entry delete" on fitplan.workout_entries for delete to authenticated using (
+  exists(select 1 from fitplan.workout_sessions s where s.id=session_id and s.user_id=(select auth.uid())));
 
-create policy "set read" on public.workout_sets for select to authenticated using (
-  exists(select 1 from public.workout_entries e join public.workout_sessions s on s.id=e.session_id
+create policy "set read" on fitplan.workout_sets for select to authenticated using (
+  exists(select 1 from fitplan.workout_entries e join fitplan.workout_sessions s on s.id=e.session_id
     where e.id=workout_entry_id and s.user_id=(select auth.uid())));
-create policy "set insert" on public.workout_sets for insert to authenticated with check (
-  exists(select 1 from public.workout_entries e join public.workout_sessions s on s.id=e.session_id
+create policy "set insert" on fitplan.workout_sets for insert to authenticated with check (
+  exists(select 1 from fitplan.workout_entries e join fitplan.workout_sessions s on s.id=e.session_id
     where e.id=workout_entry_id and s.user_id=(select auth.uid())));
-create policy "set update" on public.workout_sets for update to authenticated using (
-  exists(select 1 from public.workout_entries e join public.workout_sessions s on s.id=e.session_id
+create policy "set update" on fitplan.workout_sets for update to authenticated using (
+  exists(select 1 from fitplan.workout_entries e join fitplan.workout_sessions s on s.id=e.session_id
     where e.id=workout_entry_id and s.user_id=(select auth.uid()))) with check (
-  exists(select 1 from public.workout_entries e join public.workout_sessions s on s.id=e.session_id
+  exists(select 1 from fitplan.workout_entries e join fitplan.workout_sessions s on s.id=e.session_id
     where e.id=workout_entry_id and s.user_id=(select auth.uid())));
-create policy "set delete" on public.workout_sets for delete to authenticated using (
-  exists(select 1 from public.workout_entries e join public.workout_sessions s on s.id=e.session_id
+create policy "set delete" on fitplan.workout_sets for delete to authenticated using (
+  exists(select 1 from fitplan.workout_entries e join fitplan.workout_sessions s on s.id=e.session_id
     where e.id=workout_entry_id and s.user_id=(select auth.uid())));
 
 -- Atomic save operations: SECURITY INVOKER, caller's RLS enforced.
-create or replace function public.save_routine(p_id uuid,p_title text,p_description text,p_days jsonb)
+create or replace function fitplan.save_routine(p_id uuid,p_title text,p_description text,p_days jsonb)
 returns uuid language plpgsql security invoker set search_path='' as $$
 declare v_id uuid; v_day jsonb; v_item jsonb; v_day_id uuid; v_pos int; v_item_pos int;
 begin
@@ -181,21 +183,21 @@ begin
  if length(btrim(coalesce(p_title,''))) not between 1 and 80 then raise exception 'Invalid title'; end if;
  if jsonb_typeof(p_days) is distinct from 'array' or jsonb_array_length(p_days)>7 then raise exception 'Invalid days'; end if;
  if p_id is null then
-   insert into public.routines(owner_id,title,description) values((select auth.uid()),btrim(p_title),p_description) returning id into v_id;
+   insert into fitplan.routines(owner_id,title,description) values((select auth.uid()),btrim(p_title),p_description) returning id into v_id;
  else
-   update public.routines set title=btrim(p_title),description=p_description,updated_at=now()
+   update fitplan.routines set title=btrim(p_title),description=p_description,updated_at=now()
      where id=p_id and owner_id=(select auth.uid()) returning id into v_id;
    if v_id is null then raise exception 'Routine not found'; end if;
-   delete from public.routine_days where routine_id=v_id;
+   delete from fitplan.routine_days where routine_id=v_id;
  end if;
  v_pos:=0;
  for v_day in select value from jsonb_array_elements(p_days) loop
    if jsonb_typeof(v_day->'items') is distinct from 'array' or jsonb_array_length(v_day->'items')>20 then raise exception 'Invalid exercise list'; end if;
-   insert into public.routine_days(routine_id,weekday,position)
+   insert into fitplan.routine_days(routine_id,weekday,position)
      values(v_id,(v_day->>'weekday')::smallint,v_pos) returning id into v_day_id;
    v_item_pos:=0;
    for v_item in select value from jsonb_array_elements(v_day->'items') loop
-     insert into public.routine_items(routine_day_id,exercise_id,position,target_sets,target_reps,target_weight,notes)
+     insert into fitplan.routine_items(routine_day_id,exercise_id,position,target_sets,target_reps,target_weight,notes)
      values(v_day_id,v_item->>'exercise_id',v_item_pos,(v_item->>'target_sets')::smallint,(v_item->>'target_reps')::smallint,(v_item->>'target_weight')::numeric,nullif(v_item->>'notes',''));
      v_item_pos:=v_item_pos+1;
    end loop;
@@ -203,29 +205,29 @@ begin
  end loop;
  return v_id;
 end; $$;
-create or replace function public.save_workout(p_id uuid,p_date date,p_routine_id uuid,p_notes text,p_entries jsonb)
+create or replace function fitplan.save_workout(p_id uuid,p_date date,p_routine_id uuid,p_notes text,p_entries jsonb)
 returns uuid language plpgsql security invoker set search_path='' as $$
 declare v_id uuid; v_entry jsonb; v_set jsonb; v_entry_id uuid; v_pos int; v_set_no int;
 begin
  if (select auth.uid()) is null then raise exception 'Login required'; end if;
  if jsonb_typeof(p_entries) is distinct from 'array' or jsonb_array_length(p_entries)>30 then raise exception 'Invalid workout'; end if;
  if p_id is null then
-   insert into public.workout_sessions(user_id,routine_id,performed_at,notes)
+   insert into fitplan.workout_sessions(user_id,routine_id,performed_at,notes)
      values((select auth.uid()),p_routine_id,p_date,p_notes) returning id into v_id;
  else
-   update public.workout_sessions set performed_at=p_date,routine_id=p_routine_id,notes=p_notes
+   update fitplan.workout_sessions set performed_at=p_date,routine_id=p_routine_id,notes=p_notes
      where id=p_id and user_id=(select auth.uid()) returning id into v_id;
    if v_id is null then raise exception 'Workout not found'; end if;
-   delete from public.workout_entries where session_id=v_id;
+   delete from fitplan.workout_entries where session_id=v_id;
  end if;
  v_pos:=0;
  for v_entry in select value from jsonb_array_elements(p_entries) loop
    if jsonb_typeof(v_entry->'sets') is distinct from 'array' or jsonb_array_length(v_entry->'sets')>20 then raise exception 'Invalid sets'; end if;
-   insert into public.workout_entries(session_id,exercise_id,position)
+   insert into fitplan.workout_entries(session_id,exercise_id,position)
      values(v_id,v_entry->>'exercise_id',v_pos) returning id into v_entry_id;
    v_set_no:=1;
    for v_set in select value from jsonb_array_elements(v_entry->'sets') loop
-     insert into public.workout_sets(workout_entry_id,set_no,reps,weight)
+     insert into fitplan.workout_sets(workout_entry_id,set_no,reps,weight)
        values(v_entry_id,v_set_no,(v_set->>'reps')::smallint,(v_set->>'weight')::numeric);
      v_set_no:=v_set_no+1;
    end loop;
@@ -233,13 +235,13 @@ begin
  end loop;
  return v_id;
 end; $$;
-revoke all on function public.save_routine(uuid,text,text,jsonb) from public,anon;
-revoke all on function public.save_workout(uuid,date,uuid,text,jsonb) from public,anon;
-grant execute on function public.save_routine(uuid,text,text,jsonb) to authenticated;
-grant execute on function public.save_workout(uuid,date,uuid,text,jsonb) to authenticated;
+revoke all on function fitplan.save_routine(uuid,text,text,jsonb) from public,anon;
+revoke all on function fitplan.save_workout(uuid,date,uuid,text,jsonb) from public,anon;
+grant execute on function fitplan.save_routine(uuid,text,text,jsonb) to authenticated;
+grant execute on function fitplan.save_workout(uuid,date,uuid,text,jsonb) to authenticated;
 
 -- Exercise data seed: curated guides and verified source-link locations.
-insert into public.exercise_catalog(id,name,muscle,equipment,level,primary_muscles,steps,caution,video_url,link_checked_at) values
+insert into fitplan.exercise_catalog(id,name,muscle,equipment,level,primary_muscles,steps,caution,video_url,link_checked_at) values
 ('bench-press','바벨 벤치프레스','가슴','바벨','중급',ARRAY['대흉근','삼두근']::text[],'["벤치에 누워 발을 바닥에 고정합니다.", "어깨를 안정시키고 바벨을 가슴 쪽으로 천천히 내립니다.", "반동 없이 바벨을 위로 밀어 올립니다."]'::jsonb,'보조자 또는 안전바를 사용하고 과도한 중량을 피하세요.','https://www.muscleandstrength.com/exercises/barbell-bench-press.html',current_date),
 ('incline-dumbbell-press','인클라인 덤벨 프레스','가슴','덤벨','초급',ARRAY['상부 가슴','삼두근']::text[],'["벤치를 약간 기울이고 등을 고정합니다.", "덤벨을 천천히 내리며 팔꿈치를 통제합니다.", "가슴에 힘을 주어 덤벨을 위로 밀어 올립니다."]'::jsonb,'어깨가 불편하면 가동 범위와 벤치 각도를 낮추세요.','https://www.muscleandstrength.com/exercises/incline-dumbbell-bench-press.html',current_date),
 ('push-up','푸시업','가슴','맨몸','초급',ARRAY['대흉근','삼두근','코어']::text[],'["손을 어깨보다 약간 넓게 짚고 몸을 일직선으로 유지합니다.", "팔꿈치를 접으며 가슴을 바닥 쪽으로 내립니다.", "상체와 골반을 함께 밀어 시작 위치로 돌아옵니다."]'::jsonb,'허리를 꺾거나 엉덩이가 떨어지지 않도록 주의하세요.','https://www.muscleandstrength.com/exercises/push-up.html',current_date),
