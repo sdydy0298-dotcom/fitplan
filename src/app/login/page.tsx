@@ -51,7 +51,7 @@ export default function Login(){
     // FITPLAN-only server registration bypasses email confirmation for new users.
     // The service-role key never reaches this client or the Git repository.
     const {data:registration,error:registerError}=await db.functions.invoke('fitplan-register',{
-     body:{email:address,password}
+     body:{action:'register-v2',email:address,password}
     });
     if(registerError){
      let message='회원가입을 완료하지 못했습니다. 다시 시도해 주세요.';
@@ -72,8 +72,24 @@ export default function Login(){
     return;
    }
 
-   const {error}=await db.auth.signInWithPassword({email:address,password});
-   if(error)throw error;
+   const {data:loginResult,error:loginError}=await db.functions.invoke('fitplan-register',{
+    body:{action:'login-v2',email:address,password}
+   });
+   if(loginError){
+    let message='로그인을 완료하지 못했습니다. 다시 시도해 주세요.';
+    const context=(loginError as {context?:unknown}).context;
+    if(context instanceof Response){
+     try{const payload=await context.json() as {error?:string};
+      if(typeof payload.error==='string')message=payload.error;}catch{}
+    }
+    throw new Error(message);
+   }
+   const tokens=loginResult as {access_token?:string;refresh_token?:string}|null;
+   if(!tokens?.access_token||!tokens.refresh_token)throw new Error('로그인 결과를 확인하지 못했습니다.');
+   const {error:sessionError}=await db.auth.setSession({
+    access_token:tokens.access_token,refresh_token:tokens.refresh_token
+   });
+   if(sessionError)throw sessionError;
    await refresh();
    const next=new URLSearchParams(window.location.search).get('next');
    router.push(next?.startsWith('/')&&!next.startsWith('//')?next:'/dashboard');
