@@ -274,3 +274,30 @@ insert into fitplan.exercise_catalog(id,name,muscle,equipment,level,primary_musc
 ('skull-crusher','EZ바 스컬 크러셔','팔','EZ바·벤치','중급',ARRAY['삼두근']::text[],'["벤치에 누워 EZ바를 가슴 위로 들어 올립니다.","팔꿈치를 고정하고 바를 이마 위쪽 방향으로 천천히 내립니다.","삼두근을 사용해 팔을 다시 뻗습니다."]'::jsonb,'팔꿈치가 바깥으로 심하게 벌어지지 않게 하고 안전한 중량을 사용하세요.','https://www.muscleandstrength.com/exercises/ez-bar-skullcrusher.html',current_date),
 ('hanging-knee-raise','행잉 니 레이즈','코어','철봉','중급',ARRAY['복직근','복사근']::text[],'["철봉을 안전하게 잡고 몸의 흔들림을 줄입니다.","복부에 힘을 주어 무릎을 가슴 방향으로 들어 올립니다.","반동 없이 천천히 다리를 내려 다음 반복을 준비합니다."]'::jsonb,'어깨와 손목에 부담이 있거나 반동을 제어하기 어렵다면 중단하세요.','https://www.muscleandstrength.com/exercises/hanging-knee-raise.html',current_date)
 on conflict (id) do update set name=excluded.name,muscle=excluded.muscle,equipment=excluded.equipment,level=excluded.level,primary_muscles=excluded.primary_muscles,steps=excluded.steps,caution=excluded.caution,video_url=excluded.video_url,link_checked_at=excluded.link_checked_at;
+
+-- FITPLAN-only membership (applies on a fresh FITPLAN schema installation).
+-- The public email is unique to FITPLAN; it can exist in other ALEPH apps.
+-- Login credentials use a separate, internal Auth alias, not a password column.
+create table if not exists fitplan.users (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  email text not null unique,
+  login_email text not null unique,
+  display_name text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  last_login_at timestamptz,
+  constraint fitplan_users_email_normalized check (
+    email = lower(btrim(email)) and char_length(email) between 3 and 254
+  ),
+  constraint fitplan_users_alias check (
+    login_email ~ '^fp-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}@fitplan\.invalid$'
+  ),
+  constraint fitplan_users_name check (display_name is null or char_length(display_name) <= 80)
+);
+alter table fitplan.users enable row level security;
+revoke all on table fitplan.users from public, anon, authenticated;
+grant select on table fitplan.users to authenticated;
+grant select,insert,update,delete on table fitplan.users to service_role;
+create policy "fitplan_member_select_self"
+on fitplan.users for select to authenticated
+using (user_id = (select auth.uid()));
