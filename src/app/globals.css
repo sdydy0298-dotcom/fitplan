@@ -109,3 +109,20 @@
 .auth-confirmed-page>p{line-height:1.65}
 .auth-confirm-login{margin-top:20px;justify-content:center;width:100%}
 @media(max-width:480px){.auth-panel{padding:26px 22px}}
+
+/* Inline email confirmation inside the normal sign-up form. */
+.signup-email-row{display:flex;align-items:end;gap:9px}
+.signup-email-row>.input-field{min-width:0;flex:1}
+.signup-email-row>.btn{min-height:42px;flex-shrink:0}
+.signup-send-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:3px}
+.signup-send-row>.btn{min-height:42px;gap:7px}
+.signup-send-row>.field-hint{margin:0;flex:1;min-width:150px}
+.signup-code-panel{display:flex;align-items:end;gap:10px;margin-top:2px}
+.signup-code-panel>.input-field{flex:1;min-width:0}
+.signup-code-panel>.btn{flex-shrink:0;min-height:46px;align-items:center;display:inline-flex;gap:6px;border:1px solid #cdded7;border-radius:10px;padding:0 15px}
+.signup-code-panel input.signup-code-input{font-weight:800;font-size:20px;letter-spacing:.26em;font-variant-numeric:tabular-nums;text-align:center;color:#173c40}
+.signup-code-panel input.signup-code-input::placeholder{color:#aebec0}
+.signup-code-panel input.signup-code-input:disabled{opacity:.6}
+.signup-verified{display:flex;align-items:center;gap:8px;overflow-wrap:anywhere;font-weight:800;color:#326c4b;font-size:12px;background:#eaf6e7;border:1px solid #d2e8ca;padding:11px 13px;border-radius:11px}
+.signup-code-panel button:disabled,.signup-send-row button:disabled{cursor:not-allowed;opacity:.55}
+@media(max-width:480px){.signup-send-row{align-items:stretch;flex-direction:column}.signup-send-row>.field-hint{flex:auto;min-width:0}.signup-code-panel>.btn{padding:0 12px;font-size:12px}}
