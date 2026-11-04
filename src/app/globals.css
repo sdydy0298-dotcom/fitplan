@@ -215,3 +215,49 @@
   padding:14px;font-size:14px;color:#2e4e58;font-weight:800
  }
 }
+
+/* Active template selection and one-week-only changes. */
+.planner-active-bar{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ background:#f0f8e9;border:1px solid #d6e9ca;border-radius:15px;
+ padding:15px 18px;margin-bottom:17px
+}
+.planner-active-label{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.planner-active-label strong{font-size:14px;color:#294c38}
+.planner-active-label small{flex-basis:100%;color:#76907e;font-size:11px}
+.planner-active-bar .btn{flex-shrink:0}
+.planner-chooser{border:1px solid #dce9da;border-radius:15px;padding:21px;margin-bottom:19px;background:#fbfdf9}
+.planner-chooser h3{margin:0 0 5px;font-size:16px}
+.planner-chooser p{margin:0 0 15px}
+.planner-choice{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ border-bottom:1px solid #e6ede4;padding:14px 0
+}
+.planner-choice:last-of-type{border-bottom:0}
+.planner-choice>div{min-width:0;display:flex;flex-direction:column;gap:3px}
+.planner-choice strong{font-size:13px;overflow-wrap:anywhere}
+.planner-choice span{font-size:11px;color:#81958a}
+.planner-choice .btn{flex-shrink:0}
+.planner-chooser>.text-link{margin-top:13px}
+.planner-slot-status.is-partial{color:#987a35;background:#f8f1d8}
+.planner-day.is-partial{background:#fbf6e4;color:#95813e;border-color:#eee0ae}
+.planner-status.is-partial{background:#fbf6e4;color:#95813e}
+.planner-detail-name>strong{font-size:13px;color:#28483e}
+.set-row{grid-template-columns:40px 54px minmax(0,1fr) minmax(0,1fr) 36px;align-items:center}
+.set-row>span{padding-bottom:0}
+.set-row .input{min-width:0}
+.set-done-check{display:flex;align-items:center;justify-content:center;min-height:43px;cursor:pointer}
+.set-done-check input{width:19px;height:19px;accent-color:#779f4e;cursor:pointer}
+@media(max-width:720px){
+ .planner-active-bar{align-items:flex-start}
+ .planner-active-label{flex:1}
+ .planner-choice{flex-wrap:wrap}
+ .set-row{grid-template-columns:28px 40px minmax(0,1fr) minmax(0,1fr) 29px;gap:4px}
+ .set-row .input{padding:8px 4px;font-size:13px}
+ .set-row>span{font-size:10px}
+ .set-done-check input{height:18px;width:18px}
+}
+@media(max-width:400px){
+ .planner-active-bar{flex-direction:column}
+ .planner-active-bar .btn{width:100%}
+}
