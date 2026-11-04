@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "check:source": "node scripts/check-source.mjs",
     "check:planner": "node scripts/test-planner.mjs",
-    "prebuild": "npm run check:planner"
+    "prebuild": "npm run check:planner && npm run check:week-plan",
+    "check:week-plan": "node scripts/test-weekly-plan.mjs"
   },
   "dependencies": {
     "next": "16.4.3",
