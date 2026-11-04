@@ -1,6 +1,6 @@
 'use client';
 import {browserDb} from './supabase';
-import {dateISO,friendlyError} from './format';
+import {dateISO} from './format';
 import {mondayOf,shiftDate} from './planner';
 import type {Routine} from './types';
 
@@ -99,10 +99,15 @@ export async function startRoutine(routine:Routine,today=dateISO()):Promise<Save
  checkWeekItems(days);
  if(!days.some(d=>d.items.length))throw new Error('운동이 있는 루틴만 시작할 수 있습니다.');
  const db=browserDb(),userId=await me(),weekStart=mondayOf(today);
- const {error:versionError}=await db.from('plan_versions').insert({
-  user_id:userId,routine_id:routine.id,routine_title:routine.title,
-  effective_week:weekStart,started_on:today,days,reason:'activation'
- });
+ // Also override any previously queued next-week template for an older
+ // routine; the selected routine must continue every week until changed.
+ const nextMonday=shiftDate(weekStart,7);
+ const {error:versionError}=await db.from('plan_versions').insert([
+  {user_id:userId,routine_id:routine.id,routine_title:routine.title,
+   effective_week:weekStart,started_on:today,days,reason:'activation'},
+  {user_id:userId,routine_id:routine.id,routine_title:routine.title,
+   effective_week:nextMonday,started_on:nextMonday,days,reason:'activation'}
+ ]);
  if(versionError)throw new Error('루틴을 시작하지 못했습니다. '+versionError.message);
  const currentDays=filterInitialWeek(days,weekStart,today);
  const {data,error}=await db.from('weekly_plans').upsert({
