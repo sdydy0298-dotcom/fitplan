@@ -1,0 +1,25 @@
+.filters{background:white;border:1px solid #e2eae4;border-radius:18px;padding:19px 21px;margin-bottom:19px;display:flex;flex-direction:column;gap:13px}
+.search{display:flex;align-items:center;gap:9px;border:1px solid #dfe9df;border-radius:11px;padding:0 14px;max-width:100%}
+.search svg{color:#84a18a}
+.search input{width:100%;min-width:0;border:0;outline:0;background:transparent;height:44px;color:#294a3b;font-size:13px}
+.selectRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.selectRow label,.dates label{display:flex;flex-direction:column;gap:5px;color:#758b7c;font-size:11px;font-weight:800;min-width:0}
+.selectRow select,.dates input{width:100%;height:42px;padding:8px 11px;border:1px solid #dae6dc;border-radius:10px;background:#fafcfa;color:#354e41;font-size:12px;min-width:0}
+.dates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.filterFoot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:11px;padding-top:12px;border-top:1px solid #eff2ef;font-size:12px;color:#809486}
+.filterFoot strong{color:#3b7450}
+.clear{border:0;background:#f1f6ed;border-radius:8px;padding:8px 11px;display:flex;gap:6px;align-items:center;color:#568046;font-weight:800;font-size:11px}
+.records{display:flex;flex-direction:column;gap:13px}
+.record{background:white;border:1px solid #e2eae4;border-radius:17px;padding:20px 23px}
+.recordTop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.recordTop h2{font-size:19px;letter-spacing:-.03em;color:#2b4c40;margin:7px 0 4px}
+.recordTop p{font-size:12px;color:#869a8c;margin:0}
+.recordTop .button-row{margin-left:auto}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+.chips span{background:#f2f7f0;border:1px solid #e6efe1;padding:7px 11px;color:#4c7153;font-size:11px;border-radius:8px}
+.chips strong{font-weight:900;color:#35613f;padding-left:5px}
+.note{font-size:12px;border-top:1px solid #edf0ec;padding-top:10px;margin:12px 0 0;color:#839488}
+.empty{display:flex;flex-direction:column;align-items:center;gap:8px;background:white;border:1px dashed #d8e6d7;border-radius:16px;padding:58px 15px;text-align:center}
+.empty svg{color:#8db975}.empty h3{font-size:16px;margin:2px 0}.empty p{font-size:12px;color:#819487;max-width:420px}
+@media(max-width:590px){.filters{padding:15px 13px}.record{padding:16px 14px}.selectRow{gap:6px}.selectRow select{padding:8px 5px;font-size:11px}.recordTop .button-row{margin-left:0}}
+@media(max-width:355px){.selectRow{grid-template-columns:1fr 1fr}.selectRow label:last-child{grid-column:1/-1}.dates{grid-template-columns:1fr}}
