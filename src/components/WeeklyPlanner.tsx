@@ -12,7 +12,7 @@ import {dateISO,fmtDate} from '@/lib/format';
 const weekdays=['일','월','화','수','목','금','토'];
 const stateNames={
  done:'운동 완료',partial:'일부 완료',missed:'미기록',
- today:'기록 대기',upcoming:'예정',rest:'휴식',extra:'자유 운동'
+ today:'기록 대기',upcoming:'예정',rest:'휴식',extra:'자유 운동','not-started':'시작 전'
 };
 const slotNames={done:'완료',partial:'일부 완료',missed:'미기록',today:'기록 대기',upcoming:'예정'};
 
@@ -47,7 +47,7 @@ export default function WeeklyPlanner({
    .finally(()=>{if(live)setLoading(false);});
   return ()=>{live=false;};
  },[start,today,offset,onActivePlanChange]);
- const week=useMemo(()=>today?calculatePlannerWeek(plan,workouts,today,offset):null,[plan,workouts,today,offset]);
+ const week=useMemo(()=>today?calculatePlannerWeek(plan,workouts,today,offset,currentVersion):null,[plan,workouts,today,offset,currentVersion]);
  const selected=week?.days.find(day=>day.date===chosenDate)
   ??week?.days.find(day=>day.date===today)??week?.days[0];
  const activeRoutine=routines.find(r=>r.id===currentVersion?.routine_id);
