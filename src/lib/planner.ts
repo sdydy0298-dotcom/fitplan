@@ -1,9 +1,9 @@
 import type {Workout} from './types';
-import type {SavedWeekPlan} from './weekly-plan';
+import type {PlanVersion,SavedWeekPlan} from './weekly-plan';
 import {dateISO} from './format';
 
 export type PlanSlotStatus='done'|'partial'|'missed'|'today'|'upcoming';
-export type DayStatus='done'|'partial'|'missed'|'today'|'upcoming'|'rest'|'extra';
+export type DayStatus='done'|'partial'|'missed'|'today'|'upcoming'|'rest'|'extra'|'not-started';
 export type PlanSlot={
  routineId:string|null;routineTitle:string;exerciseCount:number;
  status:PlanSlotStatus;completedSets:number;targetSets:number;percentage:number;
@@ -35,7 +35,8 @@ export function calculatePlannerWeek(
  plan:SavedWeekPlan|null,
  workouts:Workout[],
  today=dateISO(),
- weekOffset=0
+ weekOffset=0,
+ activation:Pick<PlanVersion,'effective_week'|'started_on'|'days'>|null=null
 ):PlannerWeek{
  const start=mondayOf(shiftDate(today,weekOffset*7));
  const active=plan?.week_start===start?plan:null;
@@ -73,7 +74,17 @@ export function calculatePlannerWeek(
   }
   const completedCount=slots.filter(slot=>slot.status==='done').length;
   let status:DayStatus;
-  if(!slots.length)status=records.length?'extra':'rest';
+  if(!slots.length){
+   // The current weekly snapshot intentionally omits planned exercise items
+   // before the activation date. Those days are not *rest days*: they are
+   // original scheduled sessions that had not yet been activated.
+   const wasScheduledBeforeStart=Boolean(
+    active && activation && activation.effective_week===start &&
+    date<activation.started_on &&
+    activation.days.some(day=>day.weekday===weekday&&day.items.length>0)
+   );
+   status=records.length?'extra':wasScheduledBeforeStart?'not-started':'rest';
+  }
   else status=slots[0].status==='done'?'done':slots[0].status==='partial'?'partial':
    slots[0].status==='missed'?'missed':slots[0].status==='today'?'today':'upcoming';
   return {date,weekday,status,slots,recordedCount:records.length,completedCount};
