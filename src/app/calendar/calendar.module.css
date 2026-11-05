@@ -1,0 +1,80 @@
+.overview,.details{background:#fff;border:1px solid #e1e9e5;border-radius:22px;padding:27px 29px;box-shadow:0 14px 40px #153c2c07}
+.heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:18px}
+.heading h2{font-size:27px;letter-spacing:-.05em;color:#203d3d;margin:5px 0 0}
+.controls{display:flex;align-items:center;gap:8px}
+.todayButton{border:1px solid #dce6db;background:#f5f9f2;color:#507746;padding:8px 14px;border-radius:9px;font-size:12px;font-weight:800}
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:21px}
+.summary>div{border-radius:14px;padding:15px 18px;background:#f6f9f5;border:1px solid #ecf0eb}
+.summary span{display:block;color:#708979;font-size:12px;margin-bottom:7px}
+.summary strong{font-size:27px;color:#284a3b;line-height:1.2}
+.summary small{font-size:12px;color:#879e8b;margin-left:4px}
+.legend{display:flex;flex-wrap:wrap;gap:7px 15px;margin:0 0 14px}
+.legend span{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#82918c}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#b9c6be}
+.dot-done{background:#76a75e!important}.dot-partial{background:#d4a450!important}.dot-missed{background:#d98b7a!important}.dot-upcoming{background:#a6b8a9!important}.dot-rest{background:#d4ddd5!important}.dot-extra{background:#7aafd5!important}.dot-not-started{background:#8f9ab0!important}
+.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+.weekday{text-align:center;color:#849891;font-size:12px;font-weight:800;padding:8px 0 10px}
+.day{min-width:0;position:relative;height:101px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;border:1px solid #ebf0ec;background:#fafcfa;border-radius:12px;color:#506a5a;padding:9px 3px;transition:background .15s,border-color .15s}
+.day:hover{border-color:#bad7ad;background:#f4faed}
+.day:focus-visible{outline:3px solid #b1d685;outline-offset:2px}
+.day>strong{font-size:15px;line-height:1.3}
+.dayIcon{margin-top:2px}
+.dayDot{width:8px;height:8px;margin-top:6px;border-radius:50%;background:#d4dbd5}
+.dayLabel{font-size:10px;line-height:1.1;white-space:nowrap;color:inherit}
+.daySets{font-size:10px;color:#8a9c91;font-weight:800;line-height:1}
+.day-done{background:#edf7e6;border-color:#d8eac9;color:#4b823b}
+.day-done .dayIcon{color:#72ab53}
+.day-partial{background:#fff8e9;border-color:#f0dfbc;color:#a27a34}
+.day-missed{background:#fdf3f0;border-color:#f4dfda;color:#bd8072}
+.day-missed .dayDot{background:#d99888}
+.day-today{border-color:#aacd99;background:#f2f9ed}
+.day-today .dayDot{background:#84b661}
+.day-upcoming .dayDot{background:#a4b9aa}
+.day-extra{background:#edf5fb;border-color:#cfe1f0;color:#497eaa}
+.day-extra .dayDot{background:#7aafd5}
+.day-not-started{background:#f4f6fa;border-style:dashed;color:#7b879d}
+.day-rest .dayDot,.day-none .dayDot{background:#d5ddd6}
+.outside{opacity:.42}
+.selected{border:2px solid #79a95d!important;box-shadow:0 0 0 2px #dcf1d1;background:#eef9e7}
+.current>strong{background:#274b38;color:white;padding:1px 6px;border-radius:7px}
+.footer{font-size:11px;color:#879b8c;margin-top:14px}
+.loading{min-height:180px;display:flex;align-items:center;justify-content:center;color:#778f81;font-size:13px}
+.details{margin-top:19px}
+.detailHeader{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.detailHeader h2{font-size:22px;margin:5px 0;letter-spacing:-.04em}
+.detailHeader p{font-size:12px;margin:4px 0 0}
+.status{font-size:11px;font-weight:800;background:#edf3e8;color:#678758;border-radius:20px;padding:4px 9px;vertical-align:middle;letter-spacing:0;white-space:nowrap}
+.detailActions{display:flex;gap:8px;flex-wrap:wrap}
+.exercises{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.exerciseRow{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:7px 9px;align-items:center;border:1px solid #e7eee7;border-radius:12px;padding:12px;background:#fbfdf9}
+.exerciseIcon{color:#77ad54;display:flex}
+.exerciseTitle{font-size:12px;font-weight:800;color:#2d4f42;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exerciseCount{font-size:11px;color:#688372;font-weight:800}
+.exerciseTrack{grid-column:2/span 2;background:#e8f0e6;height:5px;border-radius:8px;overflow:hidden}
+.exerciseTrack span{display:block;height:100%;background:#85b868;border-radius:8px}
+.empty{padding:26px 14px;background:#f8faf7;border-radius:13px;color:#809587;text-align:center;font-size:12px}
+.detailFoot{font-size:12px;color:#8a9d90;margin:15px 0 0}
+@media(max-width:720px){
+ .overview,.details{padding:17px 13px;border-radius:16px}
+ .heading h2{font-size:23px}
+ .summary{gap:6px}
+ .summary>div{padding:12px 9px}
+ .summary span{font-size:10px;line-height:1.4}
+ .summary strong{font-size:22px}
+ .calendar{gap:4px}
+ .day{height:87px;padding:8px 1px;border-radius:9px;gap:5px}
+ .day>strong{font-size:13px}
+ .dayLabel{font-size:9px}
+ .daySets{font-size:9px}
+ .exercises{grid-template-columns:1fr}
+}
+@media(max-width:390px){
+ .overview,.details{padding:15px 8px}
+ .calendar{gap:3px}
+ .day{height:80px}
+ .dayLabel{font-size:8px}
+ .day>strong{font-size:12px}
+ .daySets{font-size:8px}
+ .weekday{font-size:10px}
+ .detailActions .btn{flex:1;font-size:11px;white-space:normal}
+}
