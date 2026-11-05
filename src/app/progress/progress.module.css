@@ -1,0 +1,41 @@
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;background:#fff;border:1px solid #e5ede7;border-radius:16px;padding:17px 21px;margin-bottom:15px}
+.toolbar>div:first-child{display:flex;flex-direction:column;gap:4px}
+.toolbar strong{font-size:14px;color:#284a3c}.toolbar span{font-size:11px;color:#819889}
+.periods{display:flex;gap:5px;background:#f1f5f0;border-radius:10px;padding:4px}
+.periods button{border:0;background:transparent;color:#728a78;font-size:12px;font-weight:800;padding:8px 13px;border-radius:7px}
+.periods button.active{background:white;color:#3c793b;box-shadow:0 3px 8px #3e65301b}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.stats>div{border:1px solid #e3ebe5;border-radius:17px;background:white;padding:18px 20px}
+.stats span{display:flex;align-items:center;gap:7px;font-size:11px;color:#778f7f;font-weight:800}
+.stats span svg{color:#79a657}
+.stats strong{display:block;font-size:30px;color:#24473e;line-height:1.25;margin-top:12px}
+.stats small{font-size:13px;font-weight:700;color:#82998c;margin-left:5px}
+.charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.chartCard{border:1px solid #e1eae3;border-radius:19px;background:#fff;padding:23px 23px 19px;box-shadow:0 12px 34px #233a2a07;min-width:0;margin-bottom:16px}
+.charts .chartCard{margin:0}
+.chartHeader h2{font-size:19px;color:#29493d;letter-spacing:-.035em;margin:6px 0}
+.chartHeader p{font-size:12px;color:#84958d;line-height:1.6;margin:0 0 12px}
+.plotWrap{width:100%;overflow:hidden}
+.plot{width:100%;height:auto;max-height:263px;display:block}
+.noChart{min-height:210px;display:flex;align-items:center;justify-content:center;gap:10px;color:#8b9d91;font-size:12px;text-align:center;background:#f8faf7;border-radius:12px;padding:24px}
+.weightHeader{display:flex;align-items:start;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.selectLabel{display:flex;flex-direction:column;gap:6px;color:#758979;font-size:11px;font-weight:800;min-width:220px}
+.selectLabel select{min-height:41px;border:1px solid #dbe6db;padding:9px 12px;border-radius:9px;background:#f9fbf7;color:#324e3f;font-size:12px;max-width:100%}
+.tableScroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tableScroll table{min-width:610px}
+.note{font-size:11px;color:#92a398;margin:8px 0 0}
+@media(max-width:850px){.charts{grid-template-columns:1fr}}
+@media(max-width:550px){
+ .chartCard{padding:18px 12px;border-radius:14px}
+ .toolbar{padding:14px 12px}.periods{width:100%;justify-content:space-between}
+ .periods button{flex:1;padding:8px 4px;font-size:11px}
+ .stats{gap:6px}
+ .stats>div{padding:13px 9px}
+ .stats span{font-size:10px;line-height:1.4;gap:4px}
+ .stats span svg{width:14px;height:14px}
+ .stats strong{font-size:23px}
+ .stats small{font-size:10px}
+ .selectLabel{width:100%}
+ .chartHeader h2{font-size:17px}
+}
+@media(max-width:355px){.stats{grid-template-columns:1fr}.stats>div{display:flex;align-items:center;justify-content:space-between}.stats strong{margin:0}}
