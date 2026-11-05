@@ -22,7 +22,7 @@ const accounts=[
 const pass=(label)=>{trace.push(label);console.log('PASS',label)};
 const b=await chromium.launch({
  executablePath:await chromiumBinary.executablePath(),
- args:chromiumBinary.args,headless:true
+ args:chromiumBinary.args.filter(x=>x!=='--disable-web-security'&&x!=='--disable-site-isolation-trials'),headless:true
 });
 async function context(viewport={width:1440,height:900}){
  const ctx=await b.newContext({viewport,timezoneId:'Asia/Seoul',locale:'ko-KR'});
