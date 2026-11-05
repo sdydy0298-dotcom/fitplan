@@ -53,7 +53,7 @@ export default function WeeklyPlanner({
  const week=useMemo(()=>today?calculatePlannerWeek(plan,workouts,today,offset,currentVersion):null,[plan,workouts,today,offset,currentVersion]);
  const selected=week?.days.find(day=>day.date===chosenDate)
   ??week?.days.find(day=>day.date===today)??week?.days[0];
- const selectedGoals=selected&&plan?.week_start===week?.start
+ const selectedGoals=selected&&plan&&plan.week_start===week?.start
   ?plan.days.find(d=>d.weekday===selected.weekday)?.items||[]:[];
  const selectedRecords=selected&&plan?.routine_id
   ?workouts.filter(w=>w.performed_at===selected.date&&w.routine_id===plan.routine_id):[];
