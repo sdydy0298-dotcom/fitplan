@@ -31,12 +31,14 @@ async function context(viewport={width:1440,height:900}){
  return {ctx,page};
 }
 async function registerAndLogin(page,person,redirect){
- await page.goto(site+(redirect||'/login'),{waitUntil:'domcontentloaded',timeout:30000});
+ await page.goto(site+(redirect||'/login'),{waitUntil:'networkidle',timeout:35000});
+ await page.waitForTimeout(500);
  if(redirect){
   await page.getByRole('button',{name:'로그인하고 복사하기'}).click();
   await page.waitForURL(/\/login/);
  }
  await page.getByRole('button',{name:'회원가입',exact:true}).click();
+ await page.getByLabel('비밀번호 확인').waitFor({timeout:16000});
  await page.getByLabel('이메일').fill(person.email);
  await page.getByLabel('비밀번호', {exact:true}).fill(person.password);
  await page.getByLabel('비밀번호 확인').fill(person.password);
@@ -52,7 +54,7 @@ const A=await context();
 const B=await context({width:390,height:844});
 try{
  await registerAndLogin(A.page,accounts[0]);
- await A.page.goto(site+'/routines/new');
+ await A.page.goto(site+'/routines/new',{waitUntil:'networkidle'});
  await A.page.getByLabel('루틴 이름').fill('QA 브라우저 운동 '+stamp);
  await A.page.getByLabel('루틴 설명 (선택)').fill('QA 2차 검증 - 실제 사용 데이터 아님');
  for(const idx of [1,4,5]){
@@ -78,12 +80,12 @@ try{
  await A.page.getByRole('button',{name:'이번 주 계획 저장하기'}).click();
  await A.page.waitForURL(/\/planner$/,{timeout:25000});
  pass('Browser add exercise for current week only');
- await A.page.goto(site+routinePath);
+ await A.page.goto(site+routinePath,{waitUntil:'networkidle'});
  await A.page.getByText('목요일 운동').waitFor({timeout:15000});
  const routineItems=await A.page.locator('.workout-summary').filter({hasText:'목요일'}).locator('.list-row').count();
  assert.equal(routineItems,1);
  pass('Base routine remains unchanged after temporary edit');
- await A.page.goto(site+'/planner');
+ await A.page.goto(site+'/planner',{waitUntil:'networkidle'});
  await A.page.locator('.planner-day').nth(3).click();
  await A.page.getByRole('link',{name:'운동 시작'}).click();
  await A.page.waitForURL(/\/workouts\/new/,{timeout:25000});
@@ -96,7 +98,7 @@ try{
  await A.page.waitForURL(/\/planner$/,{timeout:25000});
  await A.page.getByText('일부 완료').first().waitFor({timeout:16000});
  pass('Browser save only checked set; weekly partial completion');
- await A.page.goto(site+'/workouts');
+ await A.page.goto(site+'/workouts',{waitUntil:'networkidle'});
  await A.page.locator('.list-row').first().waitFor({timeout:18000});
  pass('Browser workout appears in history');
  await A.page.goto(site+routinePath);
@@ -105,7 +107,7 @@ try{
  const shareURL=(await A.page.locator('.share-url').textContent())?.trim();
  assert.ok(shareURL?.startsWith(site+'/share/'),shareURL);
  pass('Create public share link');
- await B.page.goto(shareURL);
+ await B.page.goto(shareURL,{waitUntil:'networkidle'});
  await B.page.getByText('읽기 전용').waitFor({timeout:15000});
  pass('Anonymous browser opens read-only shared routine');
  await registerAndLogin(B.page,accounts[1],new URL(shareURL).pathname);
@@ -121,14 +123,14 @@ try{
  await B.page.getByRole('button',{name:'루틴 저장하기'}).click();
  await B.page.waitForURL(/\/routines\/[0-9a-f-]{36}$/,{timeout:25000});
  pass('Browser personalize own copied routine');
- await B.page.goto(site+routinePath);
+ await B.page.goto(site+routinePath,{waitUntil:'networkidle'});
  await B.page.getByText('루틴을 찾을 수 없어요').waitFor({timeout:15000});
  pass('Other account cannot open private original routine');
  await A.page.goto(site+routinePath);
  await A.page.getByText('QA 브라우저 운동').first().waitFor();
  pass('Original routine unaffected by shared copy editing');
  await B.page.setViewportSize({width:390,height:844});
- await B.page.goto(site+'/planner');
+ await B.page.goto(site+'/planner',{waitUntil:'networkidle'});
  await B.page.locator('.planner-panel').waitFor({timeout:17000});
  const isHorizontal=await B.page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2);
  assert.equal(isHorizontal,false,'Unexpected horizontal scroll on mobile planner');
