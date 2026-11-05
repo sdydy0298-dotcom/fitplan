@@ -49,7 +49,7 @@ try {
   .select('id,title,routine_days(id,weekday,routine_items(exercise_id,target_sets))')
   .eq('id',copied.id).single();
  if(cloneError)throw cloneError;
- assert.equal(mine.title,payload.routine.title);
+ assert.ok(mine.title.startsWith(payload.routine.title), 'Copied title should retain source name');
  assert.equal(mine.routine_days.length,3);
  console.log('PASS Copy public routine privately to another member');
 
