@@ -40,17 +40,21 @@ function Detail({id}:{id:string}){
  };
  const toggleDiscovery=async()=>{
   if(!share?.active||saving)return;
+  const previous=share,enabled=!share.discoverable;
+  // Controlled checkbox needs immediate feedback, even during a network save.
+  setShare({...share,discoverable:enabled});
   setSaving(true);setError('');setMessage('');
   try{
-   const enabled=!share.discoverable;
    const {data,error}=await browserDb().from('routine_shares')
     .update({discoverable:enabled}).eq('id',share.id)
     .select('id,token,active,discoverable').single();
    if(error)throw error;
    setShare(data as Share);
    setMessage(enabled?'공개 루틴 둘러보기 목록에 표시됩니다.':'공개 목록에서는 숨겼습니다. 기존 공유 링크는 그대로 사용할 수 있어요.');
-  }catch(e){setError(friendlyError(e));}
-  finally{setSaving(false);}
+  }catch(e){
+   setShare(previous);
+   setError('공개 설정을 저장하지 못했습니다. '+friendlyError(e));
+  }finally{setSaving(false);}
  };
  const remove=async()=>{if(!window.confirm('이 루틴을 삭제할까요? 이 작업은 되돌릴 수 없습니다.'))return;setSaving(true);try{const{error}=await browserDb().from('routines').delete().eq('id',id);if(error)throw error;router.push('/routines');router.refresh();}catch(e){setError(friendlyError(e));setSaving(false);}};
  const link=share?.active&&typeof window!=='undefined'?`${window.location.origin}/share/${share.token}`:'';
