@@ -9,9 +9,10 @@
     "typecheck": "tsc --noEmit",
     "check:source": "node scripts/check-source.mjs",
     "check:planner": "node scripts/test-planner.mjs",
-    "prebuild": "npm run check:planner && npm run check:week-plan && npm run check:auth-cors",
+    "prebuild": "npm run check:planner && npm run check:week-plan && npm run check:workout-resume && npm run check:auth-cors",
     "check:week-plan": "node scripts/test-weekly-plan.mjs",
-    "check:auth-cors": "node scripts/check-auth-cors.mjs"
+    "check:auth-cors": "node scripts/check-auth-cors.mjs",
+    "check:workout-resume": "node scripts/test-workout-resume.mjs"
   },
   "dependencies": {
     "next": "16.4.3",
