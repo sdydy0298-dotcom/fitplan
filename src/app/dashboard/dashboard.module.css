@@ -1,0 +1,153 @@
+/* Dashboard-only layout. The planner owns week navigation and editing. */
+.hero{
+ position:relative;overflow:hidden;display:grid;
+ grid-template-columns:minmax(0,1.28fr) minmax(0,.82fr);gap:26px;
+ border:1px solid #dce9d5;border-radius:23px;
+ background:linear-gradient(116deg,#f0f8e7 0%,#f9fcf5 57%,#eaf3f1 100%);
+ padding:29px 30px;margin-bottom:19px;
+ box-shadow:0 13px 38px #244c3309;
+}
+.hero::after{
+ content:'';position:absolute;top:-94px;right:-83px;width:275px;height:275px;
+ border:1px solid #a8c99942;border-radius:50%;pointer-events:none;
+}
+.heroMain,.heroAside{position:relative;z-index:1;min-width:0}
+.heroEyebrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+.kicker{font-size:10px;letter-spacing:.13em;font-weight:900;color:#618057}
+.datePill{
+ display:inline-flex;align-items:center;gap:6px;
+ background:#fff9;border:1px solid #dfe9dd;border-radius:50px;
+ color:#6c8479;font-size:11px;font-weight:700;padding:6px 11px
+}
+.status{
+ display:inline-flex;align-items:center;gap:5px;
+ border-radius:100px;background:#e2f3d5;color:#4e7c36;
+ padding:5px 10px;font-size:11px;font-weight:800
+}
+.heroTitle{font-size:clamp(23px,2.9vw,32px);font-weight:850;letter-spacing:-.055em;line-height:1.33;color:#193d43;margin:0 0 11px;overflow-wrap:anywhere}
+.heroDescription{font-size:13px;color:#667e71;line-height:1.8;margin:0 0 17px;max-width:530px}
+.heroRoutine{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:12px;color:#6c8578;margin-bottom:17px}
+.heroRoutine strong{color:#2b564b;overflow-wrap:anywhere}
+.exercisePreview{
+ display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 20px
+}
+.exerciseChip{
+ display:inline-flex;align-items:center;gap:6px;max-width:100%;
+ padding:7px 10px;border:1px solid #d8e5d3;
+ background:#fffe;border-radius:9px;font-size:11px;
+ font-weight:750;color:#405b50
+}
+.exerciseChip svg{flex-shrink:0;color:#80a567}
+.exerciseChipComplete{
+ border-color:#c8e4b5;background:#e5f5db;color:#3f7437
+}
+.exerciseChipComplete svg{color:#5d943d}
+.heroActions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.heroActions :global(.btn){font-size:13px}
+.asideCard{
+ height:100%;display:flex;flex-direction:column;justify-content:center;
+ background:#fffdfb;border:1px solid #e2e9e0;
+ border-radius:18px;padding:23px 24px;box-shadow:0 12px 30px #20452708
+}
+.asideHeader{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.asideLabel{color:#6a827b;font-size:12px;font-weight:800}
+.asidePercent{color:#254941;font-weight:900;font-size:15px}
+.numberLine{margin:10px 0 15px;display:flex;align-items:baseline;gap:6px}
+.numberLine strong{font-size:48px;font-weight:900;letter-spacing:-.075em;line-height:1.12;color:#193e40}
+.numberLine span{font-size:15px;font-weight:800;color:#82928d}
+.progressTrack{width:100%;height:9px;border-radius:100px;background:#e9eee8;overflow:hidden}
+.progressFill{display:block;height:100%;background:linear-gradient(90deg,#a9d776,#77a958);border-radius:100px;transition:width .2s}
+.asideBottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:16px;color:#758b7f;font-size:11px}
+.asideBottom strong{color:#486e59}
+.asideHint{font-size:11px;color:#718779;line-height:1.6;margin-top:15px}
+.overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:22px}
+.metric{
+ background:#fff;border:1px solid #e0e8e4;border-radius:17px;
+ padding:18px 20px;box-shadow:0 6px 18px #22413104;min-width:0
+}
+.metricLabel{display:flex;align-items:center;gap:7px;color:#637e72;font-size:12px;font-weight:800}
+.metricLabel svg{color:#8bb663}
+.metricValue{display:block;font-size:31px;font-weight:850;color:#1c4044;letter-spacing:-.05em;line-height:1.2;margin:11px 0 4px}
+.metricValue small{font-size:14px;margin-left:3px;color:#81948a;font-weight:700;letter-spacing:0}
+.metricDescription{display:block;font-size:11px;color:#8b9d94;line-height:1.45;overflow-wrap:anywhere}
+.mainGrid{display:grid;grid-template-columns:minmax(0,1.17fr) minmax(0,.83fr);gap:17px;align-items:start}
+.panel{
+ border:1px solid #e0e8e4;background:#fff;
+ border-radius:19px;padding:22px 23px;box-shadow:0 10px 28px #22413106;
+ min-width:0
+}
+.sectionHeading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sectionHeading h2{font-size:18px;font-weight:850;color:#204349;letter-spacing:-.035em;margin:0}
+.sectionHeading a{font-size:12px;font-weight:800;color:#57875b;display:flex;align-items:center;gap:4px}
+.recordRow{
+ display:flex;align-items:center;gap:12px;padding:13px 0;
+ border-top:1px solid #edf1ee;color:inherit;transition:background .15s
+}
+.recordRow:hover{background:#f9fcf8}
+.recordIcon{
+ height:37px;width:37px;border:1px solid #e0ebdb;border-radius:11px;
+ display:flex;align-items:center;justify-content:center;flex-shrink:0;
+ color:#75a34e;background:#f2f8ed
+}
+.recordInfo{flex:1;min-width:0}
+.recordInfo strong{display:block;color:#294a44;font-size:13px;margin-bottom:4px}
+.recordInfo span{display:block;color:#8a9d94;font-size:11px;line-height:1.5}
+.recordArrow{color:#a6b6ac;flex-shrink:0}
+.emptyState{padding:27px 10px;text-align:center;color:#82958a}
+.emptyState svg{color:#aac4a5;margin:0 auto 10px}
+.emptyState strong{display:block;color:#456655;font-size:13px;margin-bottom:5px}
+.emptyState p{margin:0;font-size:12px;line-height:1.6}
+.shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.shortcut{
+ display:flex;align-items:flex-start;gap:10px;
+ border-radius:13px;border:1px solid #e8eee8;background:#f8faf7;
+ padding:15px 13px;min-height:94px;transition:background .16s,border-color .16s
+}
+.shortcut:hover{background:#eef8e8;border-color:#cee4c3}
+.shortcutIcon{
+ display:flex;align-items:center;justify-content:center;flex-shrink:0;
+ width:33px;height:33px;border-radius:10px;background:#e6f3dc;color:#608d4d
+}
+.shortcutText{min-width:0}
+.shortcutText strong{font-size:12px;color:#2f5045;display:block;margin-bottom:5px}
+.shortcutText span{font-size:11px;color:#82978b;line-height:1.5;display:block}
+.bottomNote{display:flex;align-items:center;gap:8px;color:#7a9284;font-size:11px;line-height:1.6;margin-top:15px}
+.bottomNote svg{flex-shrink:0}
+@media(max-width:960px){
+ .hero{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:16px;padding:24px}
+ .asideCard{padding:18px}
+ .shortcuts{grid-template-columns:1fr}
+ .shortcut{min-height:unset}
+}
+@media(max-width:720px){
+ .hero{grid-template-columns:1fr;padding:21px 18px;gap:19px;border-radius:18px}
+ .asideCard{padding:20px}
+ .heroTitle{font-size:26px}
+ .mainGrid{grid-template-columns:1fr}
+ .shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:520px){
+ .overview{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .metric{padding:13px 10px;border-radius:12px}
+ .metricLabel{font-size:10px;gap:4px;line-height:1.45}
+ .metricLabel svg{width:13px;height:13px;flex-shrink:0}
+ .metricValue{font-size:25px;margin-top:10px}
+ .metricValue small{font-size:11px;margin-left:2px}
+ .metricDescription{font-size:10px}
+ .panel{padding:19px 16px}
+ .heroActions :global(.btn){flex:1;justify-content:center;min-width:0}
+ .shortcuts{gap:7px}
+ .shortcut{padding:11px 9px;gap:7px}
+ .shortcutIcon{width:29px;height:29px}
+ .shortcutIcon svg{width:16px;height:16px}
+ .shortcutText strong{font-size:11px}
+ .shortcutText span{font-size:10px}
+}
+@media(max-width:360px){
+ .overview{grid-template-columns:1fr}
+ .metric{display:grid;grid-template-columns:1fr auto;column-gap:10px;padding:13px 16px}
+ .metricLabel{align-self:center}
+ .metricValue{grid-column:2;grid-row:1/span 2;margin:0;font-size:25px;align-self:center}
+ .metricDescription{grid-column:1}
+ .shortcuts{grid-template-columns:1fr}
+}
