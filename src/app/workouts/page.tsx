@@ -43,7 +43,8 @@ function WorkoutsContent(){
   return items.filter(w=>{
    if(start&&w.performed_at<start)return false;
    if(end&&w.performed_at>end)return false;
-   if(routine!=='all'&&w.routine_id!==routine)return false;
+   if(routine==='free'&&w.routine_id!==null)return false;
+   if(routine!=='all'&&routine!=='free'&&w.routine_id!==routine)return false;
    if(q){
     const names=w.workout_entries.map(e=>nameOf(e.exercise_id)).join(' ');
     const searchable=[fmtDate(w.performed_at),w.performed_at,w.notes||'',
