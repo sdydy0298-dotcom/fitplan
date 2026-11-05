@@ -25,6 +25,7 @@ function PlannerContent(){
   <PageHeading eyebrow="WEEKLY PLANNER" title="나의 운동 플래너"
    description="계획한 날과 실제 운동한 날을 비교하고, 지나간 미기록 날짜까지 한눈에 확인해요.">
    <Link href="/routines" className="btn btn-outline"><ClipboardList size={16}/>내 루틴</Link>
+   <Link href="/calendar" className="btn btn-outline"><CalendarDays size={16}/>월간 캘린더</Link>
    <Link href="/workouts/new" className="btn btn-primary"><Plus size={16}/>운동 기록</Link>
   </PageHeading>
   {error&&<div className="error-message" role="alert">{error}</div>}
@@ -37,7 +38,7 @@ function PlannerContent(){
     <div><strong>02 · 실제 운동 기록</strong><p>일정에서 운동 기록을 누르면 날짜와 루틴이 미리 선택됩니다. 기록을 저장해야 완료로 인정돼요.</p></div>
     <div><strong>03 · 달성 현황 확인</strong><p>완료·미기록·예정을 구분하고 이전 주로 이동해 달성률을 확인합니다.</p></div>
    </div>
-   <Link href="/progress" className="text-link">운동 중량·세트 변화도 확인하기 <ArrowRight size={15}/></Link>
+   <Link href="/progress" className="text-link">주간 달성률·중량 그래프 확인하기 <ArrowRight size={15}/></Link>
   </section>
  </div>;
 }
