@@ -6,6 +6,7 @@
  * runtime. Synthetic QA users created; never run as a production build step.
  */
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {randomUUID} from 'node:crypto';
 import chromiumBinary from '@sparticuz/chromium';
 import {chromium} from 'playwright';
@@ -14,11 +15,15 @@ if(process.env.RUN_LIVE_QA!=='1')throw Error('RUN_LIVE_QA=1 required');
 const site=(process.env.SITE_URL||'https://sdy-fitplan.vercel.app').replace(/\/$/,'');
 const trace=[];
 const errors=[];
+const accountStore='/tmp/fitplan-browser-qa-accounts.json';
 const stamp=Date.now().toString(36)+'-'+randomUUID().slice(0,5);
-const accounts=[
- {email:'qa-ui-fitplan-a-'+stamp+'@example.com',password:'QA-Browser-'+randomUUID()+'$A'},
- {email:'qa-ui-fitplan-b-'+stamp+'@example.com',password:'QA-Browser-'+randomUUID()+'$B'}
-];
+const accounts=fs.existsSync(accountStore)?
+ JSON.parse(fs.readFileSync(accountStore,'utf8')):[
+ {email:'qa-ui-fitplan-a-'+stamp+'@example.com',password:'QA-Browser-'+randomUUID()+'$A',registered:false},
+ {email:'qa-ui-fitplan-b-'+stamp+'@example.com',password:'QA-Browser-'+randomUUID()+'$B',registered:false}
+ ];
+const saveAccounts=()=>fs.writeFileSync(accountStore,JSON.stringify(accounts),{mode:0o600});
+saveAccounts();
 const pass=(label)=>{trace.push(label);console.log('PASS',label)};
 const b=await chromium.launch({
  executablePath:await chromiumBinary.executablePath(),
@@ -37,14 +42,18 @@ async function registerAndLogin(page,person,redirect){
   await page.getByRole('button',{name:'로그인하고 복사하기'}).click();
   await page.waitForURL(/\/login/);
  }
- await page.getByRole('button',{name:'회원가입',exact:true}).click();
- await page.getByLabel('비밀번호 확인').waitFor({timeout:16000});
+ if(!person.registered){
+  await page.getByRole('button',{name:'회원가입',exact:true}).click();
+  await page.getByLabel('비밀번호 확인').waitFor({timeout:16000});
+  await page.getByLabel('이메일').fill(person.email);
+  await page.getByLabel('비밀번호', {exact:true}).fill(person.password);
+  await page.getByLabel('비밀번호 확인').fill(person.password);
+  await page.getByRole('button',{name:'회원가입하기'}).click();
+  await page.getByRole('status').getByText('회원가입이 완료됐습니다.',{exact:false}).waitFor({timeout:20000});
+  person.registered=true;saveAccounts();
+  pass('Browser registration + manual login step');
+ }
  await page.getByLabel('이메일').fill(person.email);
- await page.getByLabel('비밀번호', {exact:true}).fill(person.password);
- await page.getByLabel('비밀번호 확인').fill(person.password);
- await page.getByRole('button',{name:'회원가입하기'}).click();
- await page.getByRole('status').getByText('회원가입이 완료됐습니다.',{exact:false}).waitFor({timeout:20000});
- pass('Browser registration + manual login step');
  await page.getByLabel('비밀번호',{exact:true}).fill(person.password);
  await page.getByRole('button',{name:'로그인하기'}).click();
  await page.waitForURL(/\/(dashboard|share\/)/,{timeout:25000});
@@ -143,7 +152,8 @@ try{
 }catch(e){
  console.error('QA_BROWSER_FAILED',e?.stack||e);
  console.error('QA_PAGE_URL',A.page.url());
- console.error('QA_PAGE_TEXT',(await A.page.locator('body').innerText().catch(()=>'' )).slice(0,1700));
+ console.error('QA_PAGE_TEXT',(await A.page.locator('body').textContent().catch(()=>'' )).slice(0,1700));
+ console.error('QA_PAGE_ERRORS',JSON.stringify(errors));
  console.log('QA_BROWSER_IDENTITIES '+JSON.stringify(accounts.map(x=>({email:x.email}))));
  console.log('QA_BROWSER_COMPLETED '+JSON.stringify(trace));
  await A.page.screenshot({path:'/tmp/fitplan-qa-error.png',fullPage:true}).catch(()=>{});
