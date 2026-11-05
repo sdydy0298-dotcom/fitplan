@@ -80,4 +80,27 @@ const noActive=calculatePlannerWeek(null,[workout('2026-11-02','routine-a')],'20
 assert.equal(noActive.planned,0);
 assert.equal(noActive.percentage,0);
 assert.equal(day(noActive,'2026-11-02').status,'extra');
+
+const thursdayActivation={
+ effective_week:'2026-11-02',
+ started_on:'2026-11-05',
+ days:Array.from({length:7},(_,weekday)=>({
+  weekday,items:[1,2,4,5].includes(weekday)?[items('bench',3)]:[]
+ }))
+};
+const firstWeek={
+ ...weekPlan,
+ days:Array.from({length:7},(_,weekday)=>({
+  weekday,items:[4,5].includes(weekday)?[items('bench',3)]:[]
+ }))
+};
+const activated=calculatePlannerWeek(firstWeek,[],'2026-11-05',0,thursdayActivation);
+assert.equal(day(activated,'2026-11-02').status,'not-started');
+assert.equal(day(activated,'2026-11-03').status,'not-started');
+assert.equal(day(activated,'2026-11-04').status,'rest');
+assert.equal(day(activated,'2026-11-05').status,'today');
+assert.equal(day(activated,'2026-11-06').status,'upcoming');
+assert.equal(activated.planned,2);
+assert.equal(activated.missed,0);
+assert.equal(activated.plannedSets,6);
 console.log('PASS: active routine snapshots, set-level partial completion, missed dates, free training, caps, and future protection');
