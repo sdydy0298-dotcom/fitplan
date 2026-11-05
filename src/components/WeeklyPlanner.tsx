@@ -157,10 +157,10 @@ export default function WeeklyPlanner({
       <strong>{slot.routineTitle}</strong>
       <span>{slot.exerciseCount}개 운동 · {slot.completedSets}/{slot.targetSets}세트 · <b className={'planner-slot-status is-'+slot.status}>{slotNames[slot.status]}</b></span>
      </div>
-     {slot.status==='done'?<Link href="/workouts" className="btn btn-ghost btn-sm">기록 보기 <ArrowRight size={14}/></Link>:
-      slot.status==='upcoming'?<span className="tag gray">예정</span>:
+     {slot.status==='upcoming'?<span className="tag gray">예정</span>:
       <Link className="btn btn-primary btn-sm" href={'/workouts/new?routine='+encodeURIComponent(slot.routineId||'')+'&date='+selected.date+'&plan=1'}>
-       <Plus size={14}/>운동 시작
+       {slot.completedSets>0?<CheckCircle2 size={14}/>:<Plus size={14}/>}
+       {slot.completedSets>0?'운동 이어하기':'운동 시작'}
       </Link>}
     </div>):
      <div className="planner-rest-message">
