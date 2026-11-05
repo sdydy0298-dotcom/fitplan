@@ -261,3 +261,59 @@
  .planner-active-bar{flex-direction:column}
  .planner-active-bar .btn{width:100%}
 }
+
+/* Continue a workout without rechecking already saved sets. */
+.resume-notice{
+ display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;
+ background:#edf6e6;border:1px solid #cfe6c0;color:#456a36;
+ border-radius:14px;padding:16px 18px
+}
+.resume-notice>svg{flex-shrink:0;margin-top:2px}
+.resume-notice>div{min-width:0;flex:1}
+.resume-notice strong{display:block;font-size:13px;line-height:1.5}
+.resume-notice p{font-size:12px;line-height:1.75;margin:4px 0 10px;color:#6a8363}
+.resume-links{display:flex;gap:7px;flex-wrap:wrap}
+.resume-links a{
+ display:inline-flex;align-items:center;gap:5px;border:1px solid #cedfc6;
+ border-radius:8px;padding:5px 9px;font-size:11px;font-weight:800;
+ background:#fff;color:#496c3d
+}
+.resume-links a:hover{background:#f6fbf2}
+.set-row.is-saved{background:#f4faee;border-radius:9px}
+.set-row.is-saved .input:disabled{background:#f0f5e9;color:#6b8268;opacity:1}
+.set-row.is-saved .set-done-check input:disabled{opacity:1;accent-color:#78a95a;cursor:default}
+.set-row.is-saved .icon-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* Exercise-by-exercise progress below the selected planner date. */
+.planner-exercise-list{
+ padding:18px 0 3px;margin-top:12px;border-top:1px solid #e6ede7
+}
+.planner-exercise-list-title{
+ display:flex;align-items:baseline;justify-content:space-between;
+ gap:10px;flex-wrap:wrap;margin-bottom:12px
+}
+.planner-exercise-list-title strong{font-size:13px;color:#274538}
+.planner-exercise-list-title span{font-size:11px;color:#879990}
+.planner-exercise-items{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px
+}
+.planner-exercise-item{
+ min-width:0;display:flex;align-items:center;gap:9px;
+ background:#f8faf8;border:1px solid #e6ece7;padding:11px 12px;border-radius:11px
+}
+.planner-exercise-symbol{display:inline-flex;color:#a0aeaa;flex-shrink:0}
+.planner-exercise-symbol.is-complete{color:#679d45}
+.planner-exercise-symbol.is-partial{color:#c19047}
+.planner-exercise-name{
+ flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;
+ white-space:nowrap;font-weight:700;font-size:12px;color:#3b554b
+}
+.planner-exercise-sets{
+ flex-shrink:0;background:#f0f3f1;border-radius:7px;
+ padding:3px 7px;color:#7e9289;font-weight:800;font-size:11px
+}
+.planner-exercise-sets.is-complete{background:#e4f2d9;color:#567e3c}
+@media(max-width:650px){
+ .planner-exercise-items{grid-template-columns:1fr}
+ .resume-notice{padding:13px;gap:9px}
+}
