@@ -9,6 +9,7 @@ import {loadWorkouts,loadRoutines,orderedItems} from '@/lib/data';
 import {browserDb} from '@/lib/supabase';
 import {dateISO,fmtDate} from '@/lib/format';
 import type {Routine,Workout} from '@/lib/types';
+import {filterWorkoutHistory} from '@/lib/workout-filter';
 import styles from './workouts.module.css';
 
 function WorkoutsContent(){
@@ -30,32 +31,10 @@ function WorkoutsContent(){
   return ()=>{live=false;};
  },[]);
  const titleById=useMemo(()=>new Map(routines.map(r=>[r.id,r.title])),[routines]);
- const filtered=useMemo(()=>{
-  const today=dateISO();
-  let start='';
-  if(['7','30','90'].includes(period)){
-   const d=new Date(today+'T12:00:00');
-   d.setDate(d.getDate()-Number(period)+1);
-   start=dateISO(d);
-  }else if(period==='custom')start=from;
-  const end=period==='custom'?to:today;
-  const q=query.trim().toLocaleLowerCase('ko-KR');
-  return items.filter(w=>{
-   if(start&&w.performed_at<start)return false;
-   if(end&&w.performed_at>end)return false;
-   if(routine==='free'&&w.routine_id!==null)return false;
-   if(routine!=='all'&&routine!=='free'&&w.routine_id!==routine)return false;
-   if(q){
-    const names=w.workout_entries.map(e=>nameOf(e.exercise_id)).join(' ');
-    const searchable=[fmtDate(w.performed_at),w.performed_at,w.notes||'',
-     w.routine_id?titleById.get(w.routine_id)||'':'자유 운동',names].join(' ').toLocaleLowerCase('ko-KR');
-    if(!searchable.includes(q))return false;
-   }
-   return true;
-  }).sort((a,b)=>(order==='old'?a.performed_at.localeCompare(b.performed_at):
-   b.performed_at.localeCompare(a.performed_at))||
-   (order==='old'?a.created_at.localeCompare(b.created_at):b.created_at.localeCompare(a.created_at)));
- },[items,query,period,routine,order,from,to,titleById,nameOf]);
+ const filtered=useMemo(()=>filterWorkoutHistory(items,{
+  query,period,routine,order,from,to
+ },titleById,nameOf,dateISO()),
+  [items,query,period,routine,order,from,to,titleById,nameOf]);
  const reset=()=>{setQuery('');setPeriod('all');setRoutine('all');setOrder('new');setFrom('');setTo('');};
  const del=async(id:string)=>{
   if(!window.confirm('이 운동 기록을 삭제할까요?'))return;
