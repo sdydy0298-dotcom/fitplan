@@ -7,6 +7,8 @@ import type {Routine,Workout} from '@/lib/types';
 import {calculatePlannerWeek,mondayOf,shiftDate} from '@/lib/planner';
 import {getWeekPlan,startRoutine,versionForWeek} from '@/lib/weekly-plan';
 import type {PlanVersion,SavedWeekPlan} from '@/lib/weekly-plan';
+import {summarizeExercises} from '@/lib/workout-resume';
+import {useExerciseLibrary} from '@/lib/custom-exercises';
 import {dateISO,fmtDate} from '@/lib/format';
 
 const weekdays=['일','월','화','수','목','금','토'];
@@ -22,6 +24,7 @@ export default function WeeklyPlanner({
  routines:Routine[];workouts:Workout[];compact?:boolean;
  onActivePlanChange?:(plan:SavedWeekPlan|null)=>void
 }){
+ const {nameOf}=useExerciseLibrary();
  const [today,setToday]=useState('');
  const [offset,setOffset]=useState(0);
  const [chosenDate,setChosenDate]=useState('');
@@ -50,6 +53,11 @@ export default function WeeklyPlanner({
  const week=useMemo(()=>today?calculatePlannerWeek(plan,workouts,today,offset,currentVersion):null,[plan,workouts,today,offset,currentVersion]);
  const selected=week?.days.find(day=>day.date===chosenDate)
   ??week?.days.find(day=>day.date===today)??week?.days[0];
+ const selectedGoals=selected&&plan?.week_start===week?.start
+  ?plan.days.find(d=>d.weekday===selected.weekday)?.items||[]:[];
+ const selectedRecords=selected&&plan?.routine_id
+  ?workouts.filter(w=>w.performed_at===selected.date&&w.routine_id===plan.routine_id):[];
+ const exerciseSummary=summarizeExercises(selectedGoals,selectedRecords);
  const activeRoutine=routines.find(r=>r.id===currentVersion?.routine_id);
  const startNow=async(routine:Routine)=>{
   if(changing||!today)return;
@@ -158,6 +166,23 @@ export default function WeeklyPlanner({
      <div className="planner-rest-message">
       {selected.recordedCount>0?'계획 없이 별도로 운동한 날짜예요. 자유 운동은 계획 달성률에 포함되지 않아요.':selected.status==='not-started'?'선택한 루틴은 이 날짜 이후에 시작했어요. 원래 운동 요일이지만 시작 전이라 미기록에 포함하지 않습니다. 다음 주부터는 계획대로 반복돼요.':'이날은 휴식일이에요. 이번 주에만 운동을 추가할 수도 있어요.'}
      </div>}
+    {exerciseSummary.length>0&&<div className="planner-exercise-list">
+     <div className="planner-exercise-list-title">
+      <strong>{selected.date===today?'오늘의 운동 구성':'선택한 날짜의 운동 구성'}</strong>
+      <span>{exerciseSummary.length}종목 · 실제 수행 세트 기준</span>
+     </div>
+     <div className="planner-exercise-items">
+      {exerciseSummary.map(item=><div className="planner-exercise-item" key={item.exercise_id}>
+       <span className={'planner-exercise-symbol'+(item.completedSets>=item.targetSets?' is-complete':item.completedSets>0?' is-partial':'')}>
+        {item.completedSets>=item.targetSets?<CheckCircle2 size={17}/>:item.completedSets>0?<Clock3 size={17}/>:<Minus size={17}/>}
+       </span>
+       <span className="planner-exercise-name">{nameOf(item.exercise_id)}</span>
+       <span className={'planner-exercise-sets'+(item.completedSets>=item.targetSets?' is-complete':'')}>
+        {item.completedSets}/{item.targetSets}세트
+       </span>
+      </div>)}
+     </div>
+    </div>}
    </div>}
    {!compact&&<p className="planner-note">계획한 종목의 실제 수행 세트만 달성률에 포함돼요. 일부 수행은 일부 완료로 표시하고, 계획 없는 자유 운동은 별도 기록으로 남습니다. 시작일 이전의 운동 예정일은 '시작 전'으로 표시하며 미기록에 포함하지 않습니다. 이전 주 계획은 저장된 당시 구성으로 유지됩니다.</p>}
   </>}
