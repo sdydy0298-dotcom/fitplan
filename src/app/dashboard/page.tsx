@@ -4,7 +4,7 @@ import {useEffect,useState} from 'react';
 import Link from 'next/link';
 import {
  ArrowRight,BookOpen,CalendarDays,CheckCircle2,ChevronRight,
- ClipboardList,Clock3,Dumbbell,History,Layers3,Play,TrendingUp
+ ClipboardList,Clock3,Compass,Dumbbell,History,Layers3,Play,TrendingUp
 } from 'lucide-react';
 import Protected from '@/components/Protected';
 import PageHeading from '@/components/PageHeading';
@@ -215,9 +215,17 @@ function DashboardData(){
         <span className={styles.shortcutIcon}><Dumbbell size={19}/></span>
         <span className={styles.shortcutText}><strong>내 루틴</strong><span>루틴 선택·관리</span></span>
        </Link>
+       <Link href="/calendar" className={styles.shortcut}>
+        <span className={styles.shortcutIcon}><CalendarDays size={19}/></span>
+        <span className={styles.shortcutText}><strong>월간 캘린더</strong><span>운동한 날 확인</span></span>
+       </Link>
        <Link href="/progress" className={styles.shortcut}>
         <span className={styles.shortcutIcon}><TrendingUp size={19}/></span>
-        <span className={styles.shortcutText}><strong>진행 현황</strong><span>운동 기록 비교</span></span>
+        <span className={styles.shortcutText}><strong>성장 분석</strong><span>세트·달성률·중량</span></span>
+       </Link>
+       <Link href="/discover" className={styles.shortcut}>
+        <span className={styles.shortcutIcon}><Compass size={19}/></span>
+        <span className={styles.shortcutText}><strong>루틴 둘러보기</strong><span>공개 운동 계획 복사</span></span>
        </Link>
        <Link href="/exercises" className={styles.shortcut}>
         <span className={styles.shortcutIcon}><BookOpen size={19}/></span>
