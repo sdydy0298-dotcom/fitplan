@@ -37,7 +37,7 @@ const resumed=buildResumeEntries(goals,previous);
 assert.equal(resumed.length,3);
 assert.equal(resumed[0].sets.length,6);
 assert.equal(resumed[0].sets.filter(s=>s.done&&s.saved).length,6);
-assert.deepEqual(resumed[0].sets.map(s=>s.reps),[10,11,12,10,11,12]);
+assert.equal(JSON.stringify(resumed[0].sets.map(s=>s.reps)),JSON.stringify([10,11,12,10,11,12]));
 assert.equal(resumed[1].sets.filter(s=>s.saved).length,4);
 assert.equal(resumed[2].sets.length,3);
 assert.equal(resumed[2].sets.filter(s=>s.done).length,0);
