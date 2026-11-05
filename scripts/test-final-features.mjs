@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import ts from 'typescript';
 
-const format={dateISO:(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const format={dateISO:(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),fmtDate:(d)=>d};
 const shiftDate=(iso,n)=>{const d=new Date(iso+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
 const mondayOf=(iso)=>shiftDate(iso,-((new Date(iso+'T12:00:00Z').getUTCDay()+6)%7));
 const planner={mondayOf,shiftDate};
@@ -21,6 +21,7 @@ const cal=load('../src/lib/monthly-calendar.ts',{'./planner':planner,'./format':
 const analytics=load('../src/lib/analytics.ts',{
  './planner':planner,'./format':format,'./monthly-calendar':cal
 });
+const filters=load('../src/lib/workout-filter.ts',{'./format':format});
 const items=(exercise_id,target_sets)=>({key:exercise_id,exercise_id,target_sets,target_reps:10,target_weight:25,notes:''});
 const original=Array.from({length:7},(_,weekday)=>({
  weekday,items:[1,2,4,5].includes(weekday)?[items('bench-press',weekday===5?2:3)]:[]
@@ -81,4 +82,22 @@ assert.equal(weights[0].best,30);
 assert.equal(weights[0].sets,2);
 assert.equal(weights[0].reps,20);
 assert.equal(JSON.stringify(analytics.exerciseIds(workouts)),JSON.stringify(['bench-press']));
+
+const freeWorkout={...workouts[0],id:'free',routine_id:null,performed_at:'2026-10-10',created_at:'2026-10-10T00:00:00Z'};
+const defaults={query:'',period:'all',routine:'all',order:'new',from:'',to:''};
+const titles=new Map([['routine','4분할']]);
+const exerciseName=id=>id==='bench-press'?'바벨 벤치프레스':id;
+const filter=(values,patch)=>filters.filterWorkoutHistory(values,{...defaults,...patch},titles,exerciseName,'2026-11-05');
+const all=filter([...workouts,freeWorkout],{});
+assert.equal(all.length,3);
+assert.equal(all[0].performed_at,'2026-11-05');
+assert.equal(filter(all,{routine:'free'}).length,1);
+assert.equal(filter(all,{routine:'routine'}).length,2);
+assert.equal(filter(all,{query:'벤치'}).length,3);
+assert.equal(filter(all,{query:'4분할'}).length,2);
+assert.equal(filter(all,{query:'알수없는종목'}).length,0);
+assert.equal(filter(all,{period:'7'}).length,2);
+assert.equal(filter(all,{period:'custom',from:'2026-10-01',to:'2026-10-31'}).length,1);
+assert.equal(filter(all,{order:'old'})[0].id,'free');
+console.log('PASS: search, custom date filters, free-routine selector and sorting');
 console.log('PASS: 42-day calendar, activation boundaries, edit-independent projections, monthly attendance, weekly trend and merged exercise records');
