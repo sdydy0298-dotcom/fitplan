@@ -17,5 +17,17 @@ export async function loadWorkout(id:string):Promise<Workout|null>{
  const {data,error}=await browserDb().from('workout_sessions').select('id,user_id,routine_id,performed_at,notes,created_at,workout_entries(id,exercise_id,position,workout_sets(id,set_no,reps,weight))').eq('id',id).maybeSingle();
  if(error)throw error;return data as Workout|null;
 }
+/** Returns all previously recorded sessions for the exact routine/date.
+ * RLS restricts this query to the signed-in account. */
+export async function loadWorkoutsForRoutineDate(
+ routineId:string,performedAt:string
+):Promise<Workout[]>{
+ const {data,error}=await browserDb().from('workout_sessions')
+  .select('id,user_id,routine_id,performed_at,notes,created_at,workout_entries(id,exercise_id,position,workout_sets(id,set_no,reps,weight))')
+  .eq('routine_id',routineId).eq('performed_at',performedAt)
+  .order('created_at',{ascending:true});
+ if(error)throw new Error('기존 운동 기록을 불러오지 못했습니다. '+error.message);
+ return (data??[]) as Workout[];
+}
 export const orderedDays=(routine:Routine)=>[...(routine.routine_days??[])].sort((a,b)=>a.weekday-b.weekday);
 export const orderedItems=<T extends {position:number}>(rows:T[])=>[...rows].sort((a,b)=>a.position-b.position);
