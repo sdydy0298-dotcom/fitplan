@@ -166,7 +166,7 @@ try{
   routine_id:routineId,owner_id:A.userId,token,active:true,revoked_at:null
  }).select('id'),'Share routine');
  const read=await fetch(site+'/api/share/'+token);
- assert.equal(read.status,200,'Share GET '+read.status+' '+await read.text().catch(()=>'?'));
+ if(read.status!==200)throw Error('Share GET HTTP '+read.status+' :: '+await read.text());
  const detail=await read.json();
  assert.equal(detail.routine.title,rA.title);
  log('Public read-only share endpoint','PASS');
