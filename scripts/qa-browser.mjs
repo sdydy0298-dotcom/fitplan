@@ -140,6 +140,8 @@ try{
  console.log('QA_BROWSER_IDENTITIES '+JSON.stringify(accounts.map(x=>({email:x.email}))));
 }catch(e){
  console.error('QA_BROWSER_FAILED',e?.stack||e);
+ console.error('QA_PAGE_URL',A.page.url());
+ console.error('QA_PAGE_TEXT',(await A.page.locator('body').innerText().catch(()=>'' )).slice(0,1700));
  console.log('QA_BROWSER_IDENTITIES '+JSON.stringify(accounts.map(x=>({email:x.email}))));
  console.log('QA_BROWSER_COMPLETED '+JSON.stringify(trace));
  await A.page.screenshot({path:'/tmp/fitplan-qa-error.png',fullPage:true}).catch(()=>{});
