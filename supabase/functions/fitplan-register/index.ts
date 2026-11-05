@@ -2,6 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.95.0";
 
 const allowedOrigins = new Set([
   "https://fitplan-sdydy0298-dotcom.vercel.app",
+  "https://sdy-fitplan.vercel.app",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
 ]);
