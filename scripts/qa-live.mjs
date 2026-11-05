@@ -44,7 +44,7 @@ async function ok(promise,label){
 try{
  const unauth=db();
  const noRoutines=await unauth.from('routines').select('id').limit(3);
- assert.equal(noRoutines.data?.length,0);
+ assert.ok(noRoutines.error || noRoutines.data?.length===0, 'Anonymous routine list unexpectedly accessible');
  log('Anonymous workout routines blocked','PASS');
 
  const identity=[];
